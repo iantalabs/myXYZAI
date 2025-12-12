@@ -3,9 +3,9 @@ title: XYZ AI Labs
 toc: false
 ---
 
-Coding labs and experiments for working with XYZ AI spreadsheet data structures and related applications.
+Coding labs and experiments for working with XYZ AI spreadsheet data structures and related applications (read from GSheet into folder, build local spreadsheet-like pages, etc).
 
-eg: /labL/expE/tabT/rowR/cellC/index.md
+Sample XYZ AI folder structure: /labL/expE/tabT/rowR/cellC/index.md
 
 ## Explore
 
