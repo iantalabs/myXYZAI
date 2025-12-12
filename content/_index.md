@@ -3,7 +3,9 @@ title: XYZ AI Labs
 toc: false
 ---
 
-This is the landing page.
+Coding labs and experiments for working with XYZ AI spreadsheet data structures and related applications.
+
+eg: /labL/expE/tabT/rowR/cellC/index.md
 
 ## Explore
 
