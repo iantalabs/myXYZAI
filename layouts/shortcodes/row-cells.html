@@ -6,11 +6,11 @@ Usage in row/_index.md:
 {{< row-cells>}}
   */}}
 
-  <div class="hx:flex hx:flex-wrap hx:gap-4 hx:mt-6">
+  <div class="hx:flex hx:gap-4 hx:mt-6 hx:overflow-x-auto hx:pb-4">
     {{- $currentPage := .Page }}
     {{- range $currentPage.Sections }}
     <div
-      class="hx:flex-1 hx:min-w-[200px] hx:border hx:border-gray-200 hx:dark:border-neutral-700 hx:rounded-sm hx:p-4 hx:bg-white hx:dark:bg-neutral-900">
+      class="hx:flex-shrink-0 hx:w-64 hx:border hx:border-gray-200 hx:dark:border-neutral-700 hx:rounded-sm hx:p-4 hx:bg-white hx:dark:bg-neutral-900">
       <h3 class="hx:text-lg hx:font-semibold hx:mb-3">
         <a href="{{ .RelPermalink }}" class="hx:text-blue-600 hx:dark:text-blue-400 hx:hover:underline">{{ .Title }}</a>
       </h3>
