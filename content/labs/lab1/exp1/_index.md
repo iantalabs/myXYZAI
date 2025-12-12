@@ -5,7 +5,7 @@ cascade:
   type: docs
 ---
 
-# Experiment 1: Create Folder Structure manually
+## Create Folder Structure manually
 
 In this experiment, we will manually create a folder structure to represent spreadsheet data for Lab 1, Experiment 1.
 
