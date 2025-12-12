@@ -1,9 +1,11 @@
 ---
-title: Lab1 on XYZ AI data structure
+title: Lab1 - XYZ AI dirs
 weight: 1
 cascade:
   type: docs
 ---
+
+# Lab1 - XYZ AI folder structure
 
 Welcome to the first lab on working with XYZ spreadsheet data structures for AI workflows!
 
