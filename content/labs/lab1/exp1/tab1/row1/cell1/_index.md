@@ -5,6 +5,8 @@ cascade:
   type: docs
 ---
 
+{{< cell >}}
+
 ## R1C1 Cell Content
 
 for Lab1 Experiment1 tab1
@@ -15,3 +17,5 @@ Relative path: /lab1/exp1/tab1/row1/cell1/index.md
 
 Such content files will come from exporting GSheets to local markdown files
 using the XYZ AI data structure conventions.
+
+{{< /cell >}}

@@ -1,0 +1,18 @@
+{{- /*
+Shortcode: cell
+Wraps inner content in a thin, narrow border with small padding.
+
+Usage:
+{{< cell>}}
+  Cell content (markdown allowed)
+  {{< /cell>}}
+
+    Optional parameters:
+    - class: additional Tailwind/Hextra classes to customize appearance
+    */ -}}
+
+    {{- $class := .Get "class" | default "hx:border hx:border-gray-200 hx:dark:border-neutral-700 hx:rounded-sm hx:p-3
+    hx:bg-transparent" -}}
+    <div class="{{ $class }}">
+      {{ .Inner | markdownify }}
+    </div>
