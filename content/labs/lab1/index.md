@@ -1,6 +1,8 @@
 ---
 title: Lab1 on XYZ AI data structure
 weight: 1
+cascade:
+  type: docs
 ---
 
 Welcome to the first lab on working with XYZ spreadsheet data structures for AI workflows!
