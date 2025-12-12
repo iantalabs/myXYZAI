@@ -1,11 +1,11 @@
 ---
-title: R1C1 Cell
+title: Cell 1
 weight: 1
 cascade:
   type: docs
 ---
 
-## R1C1 Cell content
+## R1C1 Cell Content
 
 for Lab1 Experiment1 tab1
 
