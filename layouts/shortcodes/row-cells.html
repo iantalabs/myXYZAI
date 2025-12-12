@@ -10,7 +10,7 @@ Usage in row/_index.md:
     {{- $currentPage := .Page }}
     {{- range $currentPage.Sections }}
     <div
-      class="hx:flex-shrink-0 hx:w-64 hx:border hx:border-gray-200 hx:dark:border-neutral-700 hx:rounded-sm hx:p-4 hx:bg-white hx:dark:bg-neutral-900">
+      class="hx:shrink-0 hx:w-64 hx:border hx:border-gray-200 hx:dark:border-neutral-700 hx:rounded-sm hx:p-4 hx:bg-white hx:dark:bg-neutral-900">
       <h3 class="hx:text-lg hx:font-semibold hx:mb-3">
         <a href="{{ .RelPermalink }}" class="hx:text-blue-600 hx:dark:text-blue-400 hx:hover:underline">{{ .Title }}</a>
       </h3>
