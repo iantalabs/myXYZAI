@@ -7,4 +7,4 @@ cascade:
 
 ## Tab 1 Name from a spreadsheet (GSheet)
 
-- ToDo: Here it would be great to include a spreadsheet rendering of the tab rows and cells.
+- ToDo: To include a spreadsheet rendering of the tab's rows and cells.
