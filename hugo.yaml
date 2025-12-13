@@ -53,12 +53,17 @@ menu:
 params:
   navbar:
     displayTitle: true
-    displayLogo: false
+    displayLogo: true
 
   footer:
-    displayCopyright: false
+    displayCopyright: true
     displayPoweredBy: true
 
   editURL:
     enable: true
     base: "https://github.com/iantalabs/myXYZAI/edit/main/content"
+
+  theme:
+    # light | dark | system
+    default: system
+    displayToggle: true
