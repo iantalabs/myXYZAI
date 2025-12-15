@@ -7,6 +7,70 @@
 
   const API_URL = 'http://localhost:3001';
 
+  // Simple HTML to Markdown converter
+  function htmlToMarkdown(html) {
+    let markdown = html;
+    
+    // Remove button elements
+    markdown = markdown.replace(/<button[^>]*>.*?<\/button>/g, '');
+    
+    // Convert headers
+    markdown = markdown.replace(/<h1[^>]*>(.*?)<\/h1>/gi, '# $1\n\n');
+    markdown = markdown.replace(/<h2[^>]*>(.*?)<\/h2>/gi, '## $1\n\n');
+    markdown = markdown.replace(/<h3[^>]*>(.*?)<\/h3>/gi, '### $1\n\n');
+    markdown = markdown.replace(/<h4[^>]*>(.*?)<\/h4>/gi, '#### $1\n\n');
+    markdown = markdown.replace(/<h5[^>]*>(.*?)<\/h5>/gi, '##### $1\n\n');
+    markdown = markdown.replace(/<h6[^>]*>(.*?)<\/h6>/gi, '###### $1\n\n');
+    
+    // Convert bold and italic
+    markdown = markdown.replace(/<strong[^>]*>(.*?)<\/strong>/gi, '**$1**');
+    markdown = markdown.replace(/<b[^>]*>(.*?)<\/b>/gi, '**$1**');
+    markdown = markdown.replace(/<em[^>]*>(.*?)<\/em>/gi, '*$1*');
+    markdown = markdown.replace(/<i[^>]*>(.*?)<\/i>/gi, '*$1*');
+    
+    // Convert links
+    markdown = markdown.replace(/<a[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/gi, '[$2]($1)');
+    
+    // Convert images
+    markdown = markdown.replace(/<img[^>]*src="([^"]*)"[^>]*alt="([^"]*)"[^>]*\/?>/gi, '![$2]($1)');
+    markdown = markdown.replace(/<img[^>]*alt="([^"]*)"[^>]*src="([^"]*)"[^>]*\/?>/gi, '![$1]($2)');
+    
+    // Convert lists
+    markdown = markdown.replace(/<ul[^>]*>/gi, '\n');
+    markdown = markdown.replace(/<\/ul>/gi, '\n');
+    markdown = markdown.replace(/<ol[^>]*>/gi, '\n');
+    markdown = markdown.replace(/<\/ol>/gi, '\n');
+    markdown = markdown.replace(/<li[^>]*>(.*?)<\/li>/gi, '- $1\n');
+    
+    // Convert paragraphs
+    markdown = markdown.replace(/<p[^>]*>/gi, '');
+    markdown = markdown.replace(/<\/p>/gi, '\n\n');
+    
+    // Convert line breaks
+    markdown = markdown.replace(/<br\s*\/?>/gi, '\n');
+    
+    // Convert code blocks
+    markdown = markdown.replace(/<pre[^>]*><code[^>]*>(.*?)<\/code><\/pre>/gis, '```\n$1\n```\n');
+    markdown = markdown.replace(/<code[^>]*>(.*?)<\/code>/gi, '`$1`');
+    
+    // Remove remaining HTML tags
+    markdown = markdown.replace(/<[^>]+>/g, '');
+    
+    // Decode HTML entities
+    markdown = markdown.replace(/&amp;/g, '&');
+    markdown = markdown.replace(/&lt;/g, '<');
+    markdown = markdown.replace(/&gt;/g, '>');
+    markdown = markdown.replace(/&quot;/g, '"');
+    markdown = markdown.replace(/&#39;/g, "'");
+    markdown = markdown.replace(/&nbsp;/g, ' ');
+    
+    // Clean up extra whitespace
+    markdown = markdown.replace(/\n{3,}/g, '\n\n');
+    markdown = markdown.trim();
+    
+    return markdown;
+  }
+
   // Extract file path from URL
   function getFilePath() {
     const path = window.location.pathname;
@@ -67,10 +131,11 @@
           editBtn.textContent = '⏳ Saving...';
           
           const contentDiv = cell.querySelector('div');
-          const content = contentDiv ? contentDiv.innerHTML : cell.innerHTML.replace(/<button[^>]*>.*?<\/button>/g, '');
+          const htmlContent = contentDiv ? contentDiv.innerHTML : cell.innerHTML.replace(/<button[^>]*>.*?<\/button>/g, '');
+          const markdownContent = htmlToMarkdown(htmlContent);
           
           try {
-            const result = await saveToFile(content);
+            const result = await saveToFile(markdownContent);
             
             cell.classList.remove('editing');
             contentDiv.contentEditable = 'false';
@@ -105,8 +170,20 @@
           contentDiv.style.border = '2px solid #0070f3';
           contentDiv.style.padding = '10px';
           contentDiv.style.minHeight = '100px';
+          contentDiv.style.cursor = 'text';
+          contentDiv.style.setProperty('cursor', 'text', 'important');
           editBtn.textContent = '💾 Save';
           editBtn.style.background = '#10b981';
+          
+          // Add CSS rule for all children to have text cursor
+          const styleId = 'cell-edit-cursor-style';
+          if (!document.getElementById(styleId)) {
+            const style = document.createElement('style');
+            style.id = styleId;
+            style.textContent = '.editing [contenteditable="true"], .editing [contenteditable="true"] * { cursor: text !important; }';
+            document.head.appendChild(style);
+          }
+          
           contentDiv.focus();
         }
       });

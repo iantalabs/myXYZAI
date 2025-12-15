@@ -10,6 +10,17 @@ const PORT = 3001;
 app.use(cors());
 app.use(bodyParser.json());
 
+// Root endpoint - just to confirm server is running
+app.get('/', (req, res) => {
+  res.json({ 
+    status: 'running',
+    message: 'Editor API Server',
+    endpoints: [
+      'POST /api/save-cell - Save cell content to markdown files'
+    ]
+  });
+});
+
 // Save cell content endpoint
 app.post('/api/save-cell', (req, res) => {
   const { filePath, content } = req.body;
