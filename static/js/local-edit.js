@@ -89,9 +89,16 @@
 
   // Extract file path from URL or cell element
   function getFilePath(cellElement) {
-    // If we have a cell element with a link, use its href to get the actual cell path
+    // If we have a cell element, try to find the link in the parent container
     if (cellElement) {
-      const cellLink = cellElement.querySelector('h3 a[href]');
+      // First check if there's a link inside the cell element itself
+      let cellLink = cellElement.querySelector('h3 a[href]');
+      
+      // If not found, check the parent's h3 (for row view where link is sibling)
+      if (!cellLink && cellElement.parentElement) {
+        cellLink = cellElement.parentElement.querySelector('h3 a[href]');
+      }
+      
       if (cellLink) {
         const href = cellLink.getAttribute('href');
         // Convert href to file path
