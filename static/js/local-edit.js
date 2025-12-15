@@ -124,7 +124,62 @@
 
   // Initialize edit functionality
   document.addEventListener('DOMContentLoaded', function() {
-    // Cells are now directly editable via contenteditable="true" in the HTML
-    // No edit buttons needed
+    // Find all contenteditable cells
+    const editableCells = document.querySelectorAll('[contenteditable="true"]');
+    
+    editableCells.forEach(function(cell) {
+      let originalContent = cell.innerHTML;
+      let saveBtn = null;
+      
+      // Listen for input changes
+      cell.addEventListener('input', function() {
+        // Check if content has changed
+        if (cell.innerHTML !== originalContent) {
+          // Show save button if not already visible
+          if (!saveBtn) {
+            saveBtn = document.createElement('button');
+            saveBtn.innerHTML = '💾';
+            saveBtn.className = 'cell-save-btn';
+            saveBtn.title = 'Save changes';
+            saveBtn.style.cssText = 'position:absolute;top:5px;right:5px;padding:8px 12px;background:#10b981;color:white;border:none;border-radius:4px;cursor:pointer;z-index:10;font-size:18px;box-shadow:0 2px 4px rgba(0,0,0,0.2);';
+            
+            // Make parent position relative if not already
+            const parent = cell.parentElement;
+            if (parent && window.getComputedStyle(parent).position === 'static') {
+              parent.style.position = 'relative';
+            }
+            
+            parent.appendChild(saveBtn);
+            
+            // Handle save button click
+            saveBtn.addEventListener('click', function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              
+              const content = cell.innerHTML;
+              // console.log('Cell content:', content);
+              // console.log('Markdown conversion:', htmlToMarkdown(content));
+              console.log(htmlToMarkdown(content));
+              
+              // Update original content and hide button
+              originalContent = content;
+              saveBtn.remove();
+              saveBtn = null;
+              
+              // Show brief confirmation
+              const confirmation = document.createElement('span');
+              confirmation.textContent = '✓';
+              confirmation.style.cssText = 'position:absolute;top:5px;right:5px;color:#10b981;font-size:24px;font-weight:bold;z-index:10;';
+              parent.appendChild(confirmation);
+              setTimeout(() => confirmation.remove(), 1000);
+            });
+          }
+        } else if (saveBtn) {
+          // Content reverted to original, hide save button
+          saveBtn.remove();
+          saveBtn = null;
+        }
+      });
+    });
   });
 })();
