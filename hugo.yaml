@@ -51,9 +51,12 @@ menu:
         icon: linkedin
 
 params:
+  page:
+    width: full
   navbar:
     displayTitle: true
     displayLogo: false
+    width: full
     logo:
       path: images/logo.svg
 #      dark: images/logo-dark.svg
@@ -64,6 +67,7 @@ params:
   footer:
     displayCopyright: true
     displayPoweredBy: true
+    width: full
 
   editURL:
     enable: true
