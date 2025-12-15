@@ -13,6 +13,6 @@ Usage:
 
     {{- $class := .Get "class" |
     default "hx:border hx:border-gray-200 hx:dark:border-neutral-700 hx:rounded-sm hx:p-3 hx:bg-transparent" -}}
-    <div class="hextra-cell {{ $class }}">
+    <div class="hextra-cell {{ $class }}" contenteditable="true">
       {{ .Inner | markdownify }}
     </div>
