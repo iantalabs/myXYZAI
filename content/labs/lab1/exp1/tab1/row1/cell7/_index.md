@@ -7,8 +7,7 @@ cascade:
 
 {{< cell >}}
 
-R1C7 Cell Content
-    [](#r1c7-cell-content)
+## R1C7 Cell Content
 
 - Todo: Add an image content for Cell 7 in Row 1.
 
