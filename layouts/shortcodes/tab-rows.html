@@ -1,0 +1,35 @@
+{{/*
+Shortcode: tab-rows
+Displays all rows (with their horizontal cells) in a tab
+
+Usage in tab/_index.md:
+{{< tab-rows>}}
+  */}}
+
+  <div class="hx:space-y-8">
+    {{- $currentPage := .Page }}
+    {{- range $currentPage.Sections }}
+    <div
+      class="hx:border hx:border-gray-300 hx:dark:border-neutral-600 hx:rounded-lg hx:p-6 hx:bg-gray-50 hx:dark:bg-neutral-800">
+      <h2 class="hx:text-2xl hx:font-bold hx:mb-4">
+        <a href="{{ .RelPermalink }}" class="hx:text-blue-600 hx:dark:text-blue-400 hx:hover:underline">{{ .Title }}</a>
+      </h2>
+
+      <!-- Cells displayed horizontally -->
+      <div class="hx:flex hx:gap-4 hx:overflow-x-auto hx:pb-4">
+        {{- range .Sections }}
+        <div
+          class="hx:shrink-0 hx:w-64 hx:border hx:border-gray-200 hx:dark:border-neutral-700 hx:rounded-sm hx:p-4 hx:bg-white hx:dark:bg-neutral-900">
+          <h3 class="hx:text-lg hx:font-semibold hx:mb-3">
+            <a href="{{ .RelPermalink }}" class="hx:text-blue-600 hx:dark:text-blue-400 hx:hover:underline">{{ .Title
+              }}</a>
+          </h3>
+          <div class="hx:prose hx:prose-sm hx:dark:prose-invert hx:max-w-none" contenteditable="true">
+            {{ .Content }}
+          </div>
+        </div>
+        {{- end }}
+      </div>
+    </div>
+    {{- end }}
+  </div>

@@ -1,5 +1,6 @@
 ---
 title: Tab 1
+layout: tab
 weight: 1
 cascade:
   type: docs
@@ -7,4 +8,4 @@ cascade:
 
 ## Tab 1 Name from a spreadsheet (GSheet)
 
-- ToDo: To include a spreadsheet rendering of the tab's rows and cells.
+{{< tab-rows >}}
