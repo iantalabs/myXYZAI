@@ -1,0 +1,16 @@
+/* Custom CSS to extend content area to full width between sidebars */
+
+/* Remove max-width constraint on main content area */
+article main {
+  max-width: none !important;
+}
+
+/* Ensure article takes full available width */
+article.hx\:justify-center {
+  justify-content: flex-start !important;
+}
+
+/* Alternative: Target the specific max-width class */
+.hx\:max-w-6xl {
+  max-width: none !important;
+}
