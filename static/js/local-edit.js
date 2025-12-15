@@ -175,28 +175,50 @@
             parent.appendChild(saveBtn);
             
             // Handle save button click
-            saveBtn.addEventListener('click', function(e) {
+            saveBtn.addEventListener('click', async function(e) {
               e.preventDefault();
               e.stopPropagation();
               
               const content = cell.innerHTML;
               const filePath = getFilePath(cell);
+              const markdownContent = htmlToMarkdown(content);
               
               console.log('Cell File path:', filePath);
-              // console.log('Markdown content:');
-              console.log(htmlToMarkdown(content));
+              console.log(markdownContent);
               
-              // Update original content and hide button
-              originalContent = content;
-              saveBtn.remove();
-              saveBtn = null;
+              // Disable button and show saving state
+              saveBtn.disabled = true;
+              saveBtn.innerHTML = '⏳';
+              saveBtn.title = 'Saving...';
               
-              // Show brief confirmation
-              const confirmation = document.createElement('span');
-              confirmation.textContent = '✓';
-              confirmation.style.cssText = 'position:absolute;top:5px;right:5px;color:#10b981;font-size:24px;font-weight:bold;z-index:10;';
-              parent.appendChild(confirmation);
-              setTimeout(() => confirmation.remove(), 1000);
+              try {
+                // Save to file
+                await saveToFile(markdownContent, cell);
+                
+                // Update original content and hide button
+                originalContent = content;
+                saveBtn.remove();
+                saveBtn = null;
+                
+                // Show success notification
+                const notification = document.createElement('div');
+                notification.textContent = '✅ Changes saved to file!';
+                notification.style.cssText = 'position:fixed;top:20px;right:20px;padding:15px;background:#10b981;color:white;border-radius:8px;z-index:1000;box-shadow:0 4px 6px rgba(0,0,0,0.1);';
+                document.body.appendChild(notification);
+                setTimeout(() => notification.remove(), 3000);
+              } catch (error) {
+                // Show error notification
+                const notification = document.createElement('div');
+                notification.innerHTML = '❌ Save failed! Make sure editor server is running.<br><small>Run: node editor-server.js</small>';
+                notification.style.cssText = 'position:fixed;top:20px;right:20px;padding:15px;background:#ef4444;color:white;border-radius:8px;z-index:1000;max-width:300px;box-shadow:0 4px 6px rgba(0,0,0,0.1);';
+                document.body.appendChild(notification);
+                setTimeout(() => notification.remove(), 5000);
+                
+                // Re-enable button
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '💾';
+                saveBtn.title = 'Save changes';
+              }
             });
           }
         } else if (saveBtn) {
