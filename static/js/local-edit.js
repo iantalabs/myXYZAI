@@ -122,22 +122,24 @@
     }
   }
 
-  // Add edit button to each cell
-  document.addEventListener('DOMContentLoaded', function() {
-    const cells = document.querySelectorAll('.hextra-cell');
+  // Add edit button to editable elements
+  function addEditButton(cell) {
+    // Skip if already has edit button
+    if (cell.querySelector('.cell-edit-btn')) {
+      return;
+    }
     
-    cells.forEach(function(cell) {
-      // Create edit button
-      const editBtn = document.createElement('button');
-      editBtn.textContent = '✏️ Edit';
-      editBtn.className = 'cell-edit-btn';
-      editBtn.style.cssText = 'position:absolute;top:5px;right:5px;padding:5px 10px;background:#0070f3;color:white;border:none;border-radius:4px;cursor:pointer;z-index:10;font-size:14px;';
-      
-      // Make cell position relative
-      cell.style.position = 'relative';
-      cell.insertBefore(editBtn, cell.firstChild);
-      
-      editBtn.addEventListener('click', async function(e) {
+    // Create edit button
+    const editBtn = document.createElement('button');
+    editBtn.textContent = '✏️ Edit';
+    editBtn.className = 'cell-edit-btn';
+    editBtn.style.cssText = 'position:absolute;top:5px;right:5px;padding:5px 10px;background:#0070f3;color:white;border:none;border-radius:4px;cursor:pointer;z-index:10;font-size:14px;';
+    
+    // Make cell position relative
+    cell.style.position = 'relative';
+    cell.insertBefore(editBtn, cell.firstChild);
+    
+    editBtn.addEventListener('click', async function(e) {
         e.preventDefault();
         
         if (cell.classList.contains('editing')) {
@@ -202,6 +204,42 @@
           contentDiv.focus();
         }
       });
+  }
+
+  // Initialize edit functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add edit buttons to all .hextra-cell elements (for row views)
+    const cells = document.querySelectorAll('.hextra-cell');
+    cells.forEach(function(cell) {
+      addEditButton(cell);
     });
+    
+    // For individual cell pages, also make the main content editable
+    // Look for article or main content area that contains cell content
+    if (cells.length === 0) {
+      const mainContent = document.querySelector('article.hx-prose, article, main .hx-prose, main');
+      if (mainContent && !mainContent.querySelector('.cell-edit-btn')) {
+        // Wrap content in a container div if not already wrapped
+        let editableContainer = mainContent;
+        
+        // Check if we're on a cell page by looking at the URL pattern
+        const path = window.location.pathname;
+        if (path.includes('/cell')) {
+          // Create a wrapper for the editable content
+          const wrapper = document.createElement('div');
+          wrapper.className = 'hextra-cell';
+          wrapper.style.position = 'relative';
+          wrapper.style.minHeight = '200px';
+          
+          // Move all content into wrapper
+          while (mainContent.firstChild) {
+            wrapper.appendChild(mainContent.firstChild);
+          }
+          mainContent.appendChild(wrapper);
+          
+          addEditButton(wrapper);
+        }
+      }
+    }
   });
 })();
