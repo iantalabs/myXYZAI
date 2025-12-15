@@ -28,6 +28,10 @@
     markdown = markdown.replace(/<em[^>]*>(.*?)<\/em>/gi, '*$1*');
     markdown = markdown.replace(/<i[^>]*>(.*?)<\/i>/gi, '*$1*');
     
+    // Remove empty anchor links (header permalinks)
+    markdown = markdown.replace(/<a[^>]*href="#[^"]*"[^>]*>\s*<\/a>/gi, '');
+    markdown = markdown.replace(/<a[^>]*href="#[^"]*"[^>]*><svg[^>]*>.*?<\/svg>\s*<\/a>/gi, '');
+    
     // Convert links
     markdown = markdown.replace(/<a[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/gi, '[$2]($1)');
     
