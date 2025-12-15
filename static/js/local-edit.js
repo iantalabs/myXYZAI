@@ -173,8 +173,10 @@
               e.stopPropagation();
               
               const content = cell.innerHTML;
-              // console.log('Cell content:', content);
-              // console.log('Markdown conversion:', htmlToMarkdown(content));
+              const filePath = getFilePath(cell);
+              
+              console.log('Cell File path:', filePath);
+              // console.log('Markdown content:');
               console.log(htmlToMarkdown(content));
               
               // Update original content and hide button
