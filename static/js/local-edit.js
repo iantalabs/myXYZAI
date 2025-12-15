@@ -71,8 +71,23 @@
     return markdown;
   }
 
-  // Extract file path from URL
-  function getFilePath() {
+  // Extract file path from URL or cell element
+  function getFilePath(cellElement) {
+    // If we have a cell element with a link, use its href to get the actual cell path
+    if (cellElement) {
+      const cellLink = cellElement.querySelector('h3 a[href]');
+      if (cellLink) {
+        const href = cellLink.getAttribute('href');
+        // Convert href to file path
+        let filePath = 'content' + href;
+        if (filePath.endsWith('/')) {
+          filePath += '_index.md';
+        }
+        return filePath;
+      }
+    }
+    
+    // Fallback to URL-based path (for non-row layouts)
     const path = window.location.pathname;
     // Convert URL path to file path
     // e.g., /labs/lab1/exp1/tab1/row1/cell1/ -> content/labs/lab1/exp1/tab1/row1/cell1/_index.md
@@ -84,8 +99,8 @@
   }
 
   // Save content to file via API
-  async function saveToFile(content) {
-    const filePath = getFilePath();
+  async function saveToFile(content, cellElement) {
+    const filePath = getFilePath(cellElement);
     
     try {
       const response = await fetch(`${API_URL}/api/save-cell`, {
@@ -135,7 +150,7 @@
           const markdownContent = htmlToMarkdown(htmlContent);
           
           try {
-            const result = await saveToFile(markdownContent);
+            const result = await saveToFile(markdownContent, cell);
             
             cell.classList.remove('editing');
             contentDiv.contentEditable = 'false';
