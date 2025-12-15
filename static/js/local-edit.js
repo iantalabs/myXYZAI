@@ -14,23 +14,35 @@
     // Remove button elements
     markdown = markdown.replace(/<button[^>]*>.*?<\/button>/g, '');
     
-    // Convert headers
-    markdown = markdown.replace(/<h1[^>]*>(.*?)<\/h1>/gi, '# $1\n\n');
-    markdown = markdown.replace(/<h2[^>]*>(.*?)<\/h2>/gi, '## $1\n\n');
-    markdown = markdown.replace(/<h3[^>]*>(.*?)<\/h3>/gi, '### $1\n\n');
-    markdown = markdown.replace(/<h4[^>]*>(.*?)<\/h4>/gi, '#### $1\n\n');
-    markdown = markdown.replace(/<h5[^>]*>(.*?)<\/h5>/gi, '##### $1\n\n');
-    markdown = markdown.replace(/<h6[^>]*>(.*?)<\/h6>/gi, '###### $1\n\n');
+    // Remove SVG icons and empty anchor links (header permalinks)
+    markdown = markdown.replace(/<svg[^>]*>.*?<\/svg>/gis, '');
+    markdown = markdown.replace(/<a[^>]*href="#[^"]*"[^>]*>\s*<\/a>/gi, '');
+    
+    // Convert headers - use a function to clean inner content
+    markdown = markdown.replace(/<h1[^>]*>(.*?)<\/h1>/gis, function(match, content) {
+      return '# ' + content.replace(/<[^>]+>/g, '').trim() + '\n\n';
+    });
+    markdown = markdown.replace(/<h2[^>]*>(.*?)<\/h2>/gis, function(match, content) {
+      return '## ' + content.replace(/<[^>]+>/g, '').trim() + '\n\n';
+    });
+    markdown = markdown.replace(/<h3[^>]*>(.*?)<\/h3>/gis, function(match, content) {
+      return '### ' + content.replace(/<[^>]+>/g, '').trim() + '\n\n';
+    });
+    markdown = markdown.replace(/<h4[^>]*>(.*?)<\/h4>/gis, function(match, content) {
+      return '#### ' + content.replace(/<[^>]+>/g, '').trim() + '\n\n';
+    });
+    markdown = markdown.replace(/<h5[^>]*>(.*?)<\/h5>/gis, function(match, content) {
+      return '##### ' + content.replace(/<[^>]+>/g, '').trim() + '\n\n';
+    });
+    markdown = markdown.replace(/<h6[^>]*>(.*?)<\/h6>/gis, function(match, content) {
+      return '###### ' + content.replace(/<[^>]+>/g, '').trim() + '\n\n';
+    });
     
     // Convert bold and italic
     markdown = markdown.replace(/<strong[^>]*>(.*?)<\/strong>/gi, '**$1**');
     markdown = markdown.replace(/<b[^>]*>(.*?)<\/b>/gi, '**$1**');
     markdown = markdown.replace(/<em[^>]*>(.*?)<\/em>/gi, '*$1*');
     markdown = markdown.replace(/<i[^>]*>(.*?)<\/i>/gi, '*$1*');
-    
-    // Remove empty anchor links (header permalinks)
-    markdown = markdown.replace(/<a[^>]*href="#[^"]*"[^>]*>\s*<\/a>/gi, '');
-    markdown = markdown.replace(/<a[^>]*href="#[^"]*"[^>]*><svg[^>]*>.*?<\/svg>\s*<\/a>/gi, '');
     
     // Convert links
     markdown = markdown.replace(/<a[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/gi, '[$2]($1)');
