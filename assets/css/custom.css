@@ -14,3 +14,24 @@ article.hx\:justify-center {
 .hx\:max-w-6xl {
   max-width: none !important;
 }
+
+/* Reduce top padding on headers inside cells to match bottom padding */
+[contenteditable="true"] h1,
+[contenteditable="true"] h2,
+[contenteditable="true"] h3,
+[contenteditable="true"] h4,
+[contenteditable="true"] h5,
+[contenteditable="true"] h6 {
+  margin-top: 0.5em !important;
+  margin-bottom: 0.5em !important;
+}
+
+.hextra-cell h1,
+.hextra-cell h2,
+.hextra-cell h3,
+.hextra-cell h4,
+.hextra-cell h5,
+.hextra-cell h6 {
+  margin-top: 0.5em !important;
+  margin-bottom: 0.5em !important;
+}
