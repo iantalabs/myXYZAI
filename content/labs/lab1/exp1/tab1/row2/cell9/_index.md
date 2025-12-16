@@ -7,7 +7,7 @@ cascade:
 
 {{< cell >}}
 
-## R2C9 Cell Content
+## R2C9 Title
 
 - Todo: Add an image content for Cell 9 in Row 2.
 - another test line from single cell view

@@ -7,7 +7,7 @@ cascade:
 
 {{< cell >}}
 
-## R3C8 Cell Content
+## R3C8 Title
 
 - Todo: Add an image content for Cell 8 in Row 3.
 

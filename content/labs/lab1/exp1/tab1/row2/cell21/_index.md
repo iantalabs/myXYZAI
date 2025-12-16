@@ -7,7 +7,7 @@ cascade:
 
 {{< cell >}}
 
-## R2C21 Cell Content
+## R2C21 Title
 
 - Todo: Add an image content for Cell U in Row 2.
 
