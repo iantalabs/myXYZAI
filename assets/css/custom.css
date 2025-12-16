@@ -42,3 +42,10 @@ h3.hx\:text-lg.hx\:font-semibold.hx\:mb-3 {
   margin-bottom: 0.75rem !important;
   padding-top: 0 !important;
 }
+
+/* Equal padding for row title links (Row 1, Row 2, etc.) */
+h2.hx\:text-2xl.hx\:font-bold.hx\:mb-4 {
+  margin-top: 0 !important;
+  margin-bottom: 1rem !important;
+  padding-top: 0 !important;
+}
