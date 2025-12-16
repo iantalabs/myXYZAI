@@ -49,3 +49,12 @@ h2.hx\:text-2xl.hx\:font-bold.hx\:mb-4 {
   margin-bottom: 1rem !important;
   padding-top: 0 !important;
 }
+
+/* Eliminate cell content padding */
+[contenteditable="true"] {
+  padding: 0 !important;
+}
+
+.hextra-cell {
+  padding: 0 !important;
+}
