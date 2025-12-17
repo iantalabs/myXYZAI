@@ -228,5 +228,37 @@
         }
       });
     });
+    
+    // // Add keyboard shortcut for save (Ctrl+S)
+    // document.addEventListener('keydown', function(e) {
+    //   // Check for Ctrl+S
+    //   if (e.ctrlKey && e.key === 's') {
+    //     e.preventDefault();
+        
+    //     // Find the focused cell or any cell with a save button
+    //     const focusedCell = document.activeElement;
+    //     let targetCell = null;
+        
+    //     if (focusedCell && focusedCell.hasAttribute('contenteditable')) {
+    //       targetCell = focusedCell;
+    //     } else {
+    //       // Find any cell with a save button
+    //       const cellWithSaveBtn = document.querySelector('.cell-save-btn');
+    //       if (cellWithSaveBtn) {
+    //         targetCell = cellWithSaveBtn.parentElement.querySelector('[contenteditable="true"]');
+    //       }
+    //     }
+        
+    //     if (targetCell) {
+    //       // Find and click the save button for this cell
+    //       const parent = targetCell.parentElement;
+    //       const saveButton = parent.querySelector('.cell-save-btn');
+    //       if (saveButton) {
+    //         saveButton.click();
+    //       }
+    //     }
+    //   }
+    // });
+
   });
 })();
