@@ -1,11 +1,18 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 
 const app = express();
 const PORT = 3001;
+
+// Configure multer for file uploads
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+});
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -16,7 +23,8 @@ app.get('/', (req, res) => {
     status: 'running',
     message: 'Editor API Server',
     endpoints: [
-      'POST /api/save-cell - Save cell content to markdown files'
+      'POST /api/save-cell - Save cell content to markdown files',
+      'POST /api/save-screenshot - Save screenshot images'
     ]
   });
 });
@@ -56,6 +64,43 @@ app.post('/api/save-cell', (req, res) => {
   } catch (error) {
     console.error('Error saving file:', error);
     res.status(500).json({ error: 'Failed to save file: ' + error.message });
+  }
+});
+
+// Save screenshot endpoint
+app.post('/api/save-screenshot', upload.single('image'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No image file uploaded' });
+    }
+
+    const targetPath = req.body.path || 'content/labs/lab1/exp1/images';
+    const fileName = req.file.originalname;
+    
+    // Security: only allow saving to specific directories
+    if (!targetPath.startsWith('content/')) {
+      return res.status(403).json({ error: 'Invalid target path' });
+    }
+
+    const fullDir = path.join(__dirname, targetPath);
+    const fullPath = path.join(fullDir, fileName);
+
+    // Ensure directory exists
+    if (!fs.existsSync(fullDir)) {
+      fs.mkdirSync(fullDir, { recursive: true });
+    }
+
+    // Write the image file
+    fs.writeFileSync(fullPath, req.file.buffer);
+
+    res.json({ 
+      success: true, 
+      message: 'Screenshot saved successfully',
+      filePath: path.join(targetPath, fileName)
+    });
+  } catch (error) {
+    console.error('Error saving screenshot:', error);
+    res.status(500).json({ error: 'Failed to save screenshot: ' + error.message });
   }
 });
 

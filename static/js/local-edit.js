@@ -7,6 +7,13 @@
 
   const API_URL = 'http://localhost:3001';
 
+  // Load html2canvas dynamically
+  if (!window.html2canvas) {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+    document.head.appendChild(script);
+  }
+
   // Simple HTML to Markdown converter
   function htmlToMarkdown(html) {
     let markdown = html;
@@ -259,6 +266,103 @@
     //     }
     //   }
     // });
+
+    // Screenshot functionality for tab views
+    async function captureTabScreenshot(tabName) {
+      // Wait for html2canvas to load
+      let attempts = 0;
+      while (!window.html2canvas && attempts < 50) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+      }
+      
+      if (!window.html2canvas) {
+        console.error('html2canvas failed to load');
+        return;
+      }
+
+      const mainContent = document.querySelector('main') || document.body;
+      
+      try {
+        const canvas = await html2canvas(mainContent, {
+          backgroundColor: '#ffffff',
+          scale: 2,
+          logging: false,
+          useCORS: true
+        });
+        
+        // Convert canvas to blob
+        canvas.toBlob(async (blob) => {
+          const formData = new FormData();
+          formData.append('image', blob, `${tabName}.png`);
+          formData.append('path', 'content/labs/lab1/exp1/images');
+          
+          try {
+            const response = await fetch(`${API_URL}/api/save-screenshot`, {
+              method: 'POST',
+              body: formData
+            });
+            
+            const result = await response.json();
+            console.log(`Screenshot saved: ${result.message}`);
+            alert(`Screenshot saved to ${result.filePath}`);
+          } catch (error) {
+            console.error('Error saving screenshot:', error);
+            alert('Error saving screenshot: ' + error.message);
+          }
+        }, 'image/png');
+      } catch (error) {
+        console.error('Error capturing screenshot:', error);
+        alert('Error capturing screenshot: ' + error.message);
+      }
+    }
+
+    // Add screenshot button for tab views
+    if (window.location.pathname.includes('/tab1/') || window.location.pathname.includes('/tab2/')) {
+      const tabMatch = window.location.pathname.match(/\/(tab\d+)\//);
+      if (tabMatch) {
+        const tabName = tabMatch[1];
+        
+        // Create screenshot button
+        const screenshotBtn = document.createElement('button');
+        screenshotBtn.innerHTML = '📸 Capture Screenshot';
+        screenshotBtn.style.cssText = `
+          position: fixed;
+          top: 80px;
+          right: 20px;
+          padding: 10px 16px;
+          background: #3b82f6;
+          color: white;
+          border: none;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 14px;
+          font-weight: 500;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+          z-index: 1000;
+          transition: background 0.2s;
+        `;
+        
+        screenshotBtn.addEventListener('mouseover', function() {
+          this.style.background = '#2563eb';
+        });
+        
+        screenshotBtn.addEventListener('mouseout', function() {
+          this.style.background = '#3b82f6';
+        });
+        
+        screenshotBtn.addEventListener('click', function() {
+          this.disabled = true;
+          this.innerHTML = '⏳ Capturing...';
+          captureTabScreenshot(tabName).finally(() => {
+            this.disabled = false;
+            this.innerHTML = '📸 Capture Screenshot';
+          });
+        });
+        
+        document.body.appendChild(screenshotBtn);
+      }
+    }
 
   });
 })();
