@@ -13,7 +13,42 @@ Usage:
 
     {{- $class := .Get "class" |
     default "hx:border hx:border-gray-200 hx:dark:border-neutral-700 hx:rounded-sm hx:p-3 hx:bg-transparent" -}}
-    <div class="hextra-cell {{ $class }}" contenteditable="true"
-      style="min-height: calc(100vh - 12rem); overflow-y: auto;">
-      {{ .Inner | markdownify }}
+    <div style="display: flex; flex-direction: column; height: calc(100vh - 12rem);">
+      <div class="hextra-cell {{ $class }}" contenteditable="true" style="flex: 1; min-height: 0; overflow-y: auto;">
+        {{ .Inner | markdownify }}
+      </div>
+      <div
+        class="hx:py-2 hx:px-4 hx:text-sm hx:text-gray-600 hx:dark:text-gray-400 hx:border-t hx:border-gray-200 hx:dark:border-neutral-700 hx:bg-gray-50 hx:dark:bg-neutral-800 cell-footer">
+        <span class="line-count">0</span> lines
+      </div>
     </div>
+    <script>
+      (function () {
+        // Count lines in cell content
+        function updateLineCount() {
+          const cells = document.querySelectorAll('.hextra-cell');
+          cells.forEach(function (cell) {
+            const footer = cell.parentElement.querySelector('.cell-footer .line-count');
+            if (footer) {
+              const text = cell.innerText || cell.textContent;
+              const lines = text.split('\n').filter(line => line.trim().length > 0).length;
+              footer.textContent = lines;
+            }
+          });
+        }
+
+        // Update on load
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', updateLineCount);
+        } else {
+          updateLineCount();
+        }
+
+        // Update on input
+        document.addEventListener('input', function (e) {
+          if (e.target.classList.contains('hextra-cell') || e.target.closest('.hextra-cell')) {
+            updateLineCount();
+          }
+        });
+      })();
+    </script>
