@@ -6,33 +6,41 @@ Usage in tab/_index.md:
 {{< tab-rows>}}
   */}}
 
-  <div class="hx:space-y-8">
-    {{- $currentPage := .Page }}
-    {{- range $currentPage.Sections }}
-    <div
-      class="hx:border hx:border-gray-300 hx:dark:border-neutral-600 hx:rounded-lg hx:p-0 hx:bg-gray-50 hx:dark:bg-neutral-800"
-      style="height: 25vh; display: flex; flex-direction: column;">
-      <h2 class="hx:text-2xl hx:font-bold hx:mb-4" style="flex-shrink: 0;">
-        <a href="{{ .RelPermalink }}" class="hx:text-blue-600 hx:dark:text-blue-400 hx:hover:underline">{{ .Title }}</a>
-      </h2>
+  {{- $currentPage := .Page }}
+  <div>
+    <div class="hx:space-y-8">
+      {{- range $currentPage.Sections }}
+      <div
+        class="hx:border hx:border-gray-300 hx:dark:border-neutral-600 hx:rounded-lg hx:p-0 hx:bg-gray-50 hx:dark:bg-neutral-800"
+        style="height: 25vh; display: flex; flex-direction: column;">
+        <h2 class="hx:text-2xl hx:font-bold hx:mb-4" style="flex-shrink: 0;">
+          <a href="{{ .RelPermalink }}" class="hx:text-blue-600 hx:dark:text-blue-400 hx:hover:underline">{{ .Title
+            }}</a>
+        </h2>
 
-      <!-- Cells displayed horizontally -->
-      <div class="hx:flex hx:gap-0 hx:overflow-x-auto hx:pb-4" style="flex: 1; min-height: 0;">
-        {{- range .Sections }}
-        <div
-          class="hx:shrink-0 hx:w-64 hx:border hx:border-gray-200 hx:dark:border-neutral-700 hx:rounded-sm hx:p-0 hx:bg-white hx:dark:bg-neutral-900"
-          style="height: 100%; display: flex; flex-direction: column;">
-          <h3 class="hx:text-lg hx:font-semibold hx:mb-3" style="flex-shrink: 0;">
-            <a href="{{ .RelPermalink }}" class="hx:text-blue-600 hx:dark:text-blue-400 hx:hover:underline">{{ .Title
-              }}</a>
-          </h3>
-          <div class="hx:prose hx:prose-sm hx:dark:prose-invert hx:max-w-none hx:overflow-y-auto" contenteditable="true"
-            style="flex: 1; min-height: 0;">
-            {{ .Content }}
+        <!-- Cells displayed horizontally -->
+        <div class="hx:flex hx:gap-0 hx:overflow-x-auto hx:pb-4" style="flex: 1; min-height: 0;">
+          {{- range .Sections }}
+          <div
+            class="hx:shrink-0 hx:w-64 hx:border hx:border-gray-200 hx:dark:border-neutral-700 hx:rounded-sm hx:p-0 hx:bg-white hx:dark:bg-neutral-900"
+            style="height: 100%; display: flex; flex-direction: column;">
+            <h3 class="hx:text-lg hx:font-semibold hx:mb-3" style="flex-shrink: 0;">
+              <a href="{{ .RelPermalink }}" class="hx:text-blue-600 hx:dark:text-blue-400 hx:hover:underline">{{ .Title
+                }}</a>
+            </h3>
+            <div class="hx:prose hx:prose-sm hx:dark:prose-invert hx:max-w-none hx:overflow-y-auto"
+              contenteditable="true" style="flex: 1; min-height: 0;">
+              {{ .Content }}
+            </div>
           </div>
+          {{- end }}
         </div>
-        {{- end }}
       </div>
+      {{- end }}
     </div>
-    {{- end }}
+    <!-- Footer showing row count -->
+    <div
+      class="hx:py-2 hx:px-4 hx:text-sm hx:text-gray-600 hx:dark:text-gray-400 hx:border-t hx:border-gray-200 hx:dark:border-neutral-700 hx:bg-gray-50 hx:dark:bg-neutral-800 hx:mt-8">
+      {{ len $currentPage.Sections }} rows
+    </div>
   </div>
