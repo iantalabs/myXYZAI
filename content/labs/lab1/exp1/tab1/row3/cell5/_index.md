@@ -11,6 +11,6 @@ cascade:
 
 Todo: Add an image content for Cell 5 in Row 3.
 
-test line
+new test line
 
 {{< /cell >}}
