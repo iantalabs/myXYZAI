@@ -7,7 +7,7 @@ Usage in tab/_index.md:
   */}}
 
   {{- $currentPage := .Page }}
-  <div>
+  <div style="position: relative; padding-bottom: 3rem;">
     <div class="hx:space-y-8">
       {{- range $currentPage.Sections }}
       <div
@@ -38,9 +38,10 @@ Usage in tab/_index.md:
       </div>
       {{- end }}
     </div>
-    <!-- Footer showing row count -->
+    <!-- Floating footer showing row count inside content area -->
     <div
-      class="hx:py-2 hx:px-4 hx:text-sm hx:text-gray-600 hx:dark:text-gray-400 hx:border-t hx:border-gray-200 hx:dark:border-neutral-700 hx:bg-gray-50 hx:dark:bg-neutral-800 hx:mt-8">
+      class="hx:px-4 hx:text-sm hx:text-gray-600 hx:dark:text-gray-400 hx:border-t hx:border-gray-200 hx:dark:border-neutral-700 hx:bg-gray-50 hx:dark:bg-neutral-800"
+      style="position: fixed; bottom: 1.5rem; left: 15rem; right: 0; text-align: left; display: flex; align-items: center; height: 2.5rem;">
       {{ len $currentPage.Sections }} rows
     </div>
   </div>
