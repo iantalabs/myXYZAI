@@ -14,6 +14,21 @@
     document.head.appendChild(script);
   }
 
+  // Helper to convert oklch to rgb (simplified approximation)
+  function oklchToRgb(oklchStr) {
+    // Extract values from oklch string like "oklch(0.5 0.1 180)"
+    const match = oklchStr.match(/oklch\(([\d.]+)\s+([\d.]+)\s+([\d.]+)\)/);
+    if (!match) return oklchStr;
+    
+    const l = parseFloat(match[1]);
+    const c = parseFloat(match[2]);
+    const h = parseFloat(match[3]);
+    
+    // Very simplified conversion - just use lightness as grayscale
+    const gray = Math.round(l * 255);
+    return `rgb(${gray}, ${gray}, ${gray})`;
+  }
+
   // Simple HTML to Markdown converter
   function htmlToMarkdown(html) {
     let markdown = html;
@@ -281,45 +296,60 @@
         return;
       }
 
-      const mainContent = document.querySelector('main') || document.body;
-      
-      // Clone the element to avoid modifying the actual DOM
-      const clone = mainContent.cloneNode(true);
-      document.body.appendChild(clone);
-      clone.style.position = 'absolute';
-      clone.style.left = '-9999px';
-      
-      // Convert oklch colors to hex/rgb before capturing
-      const allElements = clone.querySelectorAll('*');
-      allElements.forEach(el => {
-        const computed = window.getComputedStyle(el);
-        // Get computed values which will be resolved to rgb/rgba
-        if (computed.backgroundColor && computed.backgroundColor !== 'rgba(0, 0, 0, 0)') {
-          el.style.backgroundColor = computed.backgroundColor;
-        }
-        if (computed.color) {
-          el.style.color = computed.color;
-        }
-        if (computed.borderColor) {
-          el.style.borderColor = computed.borderColor;
-        }
-      });
+      // Capture only the tab content area (rows and cells)
+      const tabContent = document.querySelector('.hextra-container') || 
+                         document.querySelector('article') || 
+                         document.querySelector('main') || 
+                         document.body;
       
       try {
-        const canvas = await html2canvas(clone, {
+        const canvas = await html2canvas(tabContent, {
           backgroundColor: '#ffffff',
           scale: 2,
           logging: false,
           useCORS: true,
           allowTaint: true,
+          foreignObjectRendering: true,
           ignoreElements: (element) => {
-            // Ignore the screenshot button itself
             return element.classList && element.classList.contains('screenshot-btn');
+          },
+          onclone: (clonedDoc) => {
+            // Disable ALL stylesheets to avoid oklch parsing
+            const linkElements = clonedDoc.querySelectorAll('link[rel="stylesheet"]');
+            linkElements.forEach(link => link.disabled = true);
+            
+            const styleElements = clonedDoc.querySelectorAll('style');
+            styleElements.forEach(style => style.remove());
+            
+            // Create a simple replacement stylesheet with basic styles
+            const newStyle = clonedDoc.createElement('style');
+            newStyle.textContent = `
+              * { 
+                box-sizing: border-box; 
+              }
+              body {
+                font-family: system-ui, -apple-system, sans-serif;
+                color: rgb(0, 0, 0);
+                background: rgb(255, 255, 255);
+              }
+              h1, h2, h3, h4, h5, h6 {
+                color: rgb(0, 0, 0);
+                font-weight: 600;
+              }
+              [contenteditable] {
+                border: 1px solid rgb(200, 200, 200);
+                padding: 1rem;
+                background: rgb(255, 255, 255);
+              }
+              .row-footer, .tab-footer {
+                border-top: 1px solid rgb(200, 200, 200);
+                padding: 0.5rem;
+                background: rgb(249, 250, 251);
+              }
+            `;
+            clonedDoc.head.appendChild(newStyle);
           }
         });
-        
-        // Remove the clone
-        document.body.removeChild(clone);
         
         // Convert canvas to blob
         canvas.toBlob(async (blob) => {
@@ -335,7 +365,6 @@
             
             const result = await response.json();
             console.log(`Screenshot saved: ${result.message}`);
-            alert(`Screenshot saved to ${result.filePath}`);
           } catch (error) {
             console.error('Error saving screenshot:', error);
             alert('Error saving screenshot: ' + error.message);
@@ -344,10 +373,6 @@
       } catch (error) {
         console.error('Error capturing screenshot:', error);
         alert('Error capturing screenshot: ' + error.message);
-        // Clean up clone if it still exists
-        if (clone && clone.parentNode) {
-          document.body.removeChild(clone);
-        }
       }
     }
 
