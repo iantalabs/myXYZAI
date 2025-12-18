@@ -325,7 +325,7 @@
         
         // Create screenshot button
         const screenshotBtn = document.createElement('button');
-        screenshotBtn.innerHTML = '📸 Capture Screenshot';
+        screenshotBtn.innerHTML = '📸 Tab';
         screenshotBtn.style.cssText = `
           position: fixed;
           top: 80px;
