@@ -302,6 +302,9 @@
                          document.querySelector('main') || 
                          document.body;
       
+      // Get the element's position
+      const rect = tabContent.getBoundingClientRect();
+      
       try {
         const canvas = await html2canvas(tabContent, {
           backgroundColor: '#ffffff',
@@ -310,6 +313,12 @@
           useCORS: true,
           allowTaint: true,
           foreignObjectRendering: true,
+          x: -250,
+          y: 0,
+          scrollX: 0,
+          scrollY: 0,
+          windowWidth: tabContent.scrollWidth,
+          windowHeight: tabContent.scrollHeight,
           ignoreElements: (element) => {
             return element.classList && element.classList.contains('screenshot-btn');
           },
