@@ -283,13 +283,43 @@
 
       const mainContent = document.querySelector('main') || document.body;
       
+      // Clone the element to avoid modifying the actual DOM
+      const clone = mainContent.cloneNode(true);
+      document.body.appendChild(clone);
+      clone.style.position = 'absolute';
+      clone.style.left = '-9999px';
+      
+      // Convert oklch colors to hex/rgb before capturing
+      const allElements = clone.querySelectorAll('*');
+      allElements.forEach(el => {
+        const computed = window.getComputedStyle(el);
+        // Get computed values which will be resolved to rgb/rgba
+        if (computed.backgroundColor && computed.backgroundColor !== 'rgba(0, 0, 0, 0)') {
+          el.style.backgroundColor = computed.backgroundColor;
+        }
+        if (computed.color) {
+          el.style.color = computed.color;
+        }
+        if (computed.borderColor) {
+          el.style.borderColor = computed.borderColor;
+        }
+      });
+      
       try {
-        const canvas = await html2canvas(mainContent, {
+        const canvas = await html2canvas(clone, {
           backgroundColor: '#ffffff',
           scale: 2,
           logging: false,
-          useCORS: true
+          useCORS: true,
+          allowTaint: true,
+          ignoreElements: (element) => {
+            // Ignore the screenshot button itself
+            return element.classList && element.classList.contains('screenshot-btn');
+          }
         });
+        
+        // Remove the clone
+        document.body.removeChild(clone);
         
         // Convert canvas to blob
         canvas.toBlob(async (blob) => {
@@ -314,6 +344,10 @@
       } catch (error) {
         console.error('Error capturing screenshot:', error);
         alert('Error capturing screenshot: ' + error.message);
+        // Clean up clone if it still exists
+        if (clone && clone.parentNode) {
+          document.body.removeChild(clone);
+        }
       }
     }
 
@@ -325,6 +359,7 @@
         
         // Create screenshot button
         const screenshotBtn = document.createElement('button');
+        screenshotBtn.className = 'screenshot-btn';
         screenshotBtn.innerHTML = '📸 Tab';
         screenshotBtn.style.cssText = `
           position: fixed;
@@ -353,10 +388,10 @@
         
         screenshotBtn.addEventListener('click', function() {
           this.disabled = true;
-          this.innerHTML = '⏳ Capturing...';
+          this.innerHTML = '⏳ /images';
           captureTabScreenshot(tabName).finally(() => {
             this.disabled = false;
-            this.innerHTML = '📸 Capture Screenshot';
+            this.innerHTML = '📸 Tab';
           });
         });
         
