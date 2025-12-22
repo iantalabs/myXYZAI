@@ -58,3 +58,15 @@ h2.hx\:text-2xl.hx\:font-bold.hx\:mb-4 {
 .hextra-cell {
   padding: 0 !important;
 }
+
+/* Custom background colors for cells with bg_color parameter */
+.hextra-cell-container.cell-custom-bg {
+  background-color: var(--cell-bg-color) !important;
+  background: var(--cell-bg-color) !important;
+}
+
+/* Ensure dark mode doesn't override custom bg_color */
+.dark .hextra-cell-container.cell-custom-bg {
+  background-color: var(--cell-bg-color) !important;
+  background: var(--cell-bg-color) !important;
+}

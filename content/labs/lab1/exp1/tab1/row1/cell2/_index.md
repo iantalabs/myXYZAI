@@ -1,6 +1,7 @@
 ---
 title: B
 weight: 2
+bg_color: '#88EEFF'
 cascade:
   type: docs
 ---
