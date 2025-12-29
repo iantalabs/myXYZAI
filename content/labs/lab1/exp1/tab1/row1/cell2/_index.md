@@ -5,7 +5,7 @@ type: cell
 bg_color: '#88EEFF'
 ---
 
-## R1C2 Title
+## R1C2 + bg_color
 
 - Todo: Add an image content for Cell 2 in Row 1.
 

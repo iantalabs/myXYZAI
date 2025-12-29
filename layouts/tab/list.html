@@ -27,8 +27,9 @@
       <!-- Cells displayed horizontally -->
       <div class="hx:flex hx:gap-4 hx:overflow-x-auto hx:pb-4">
         {{- range .Sections }}
-        <div
-          class="hx:shrink-0 hx:w-64 hx:border hx:border-gray-200 hx:dark:border-neutral-700 hx:rounded-sm hx:p-4 hx:bg-white hx:dark:bg-neutral-900">
+        {{- $bgColor := .Params.bg_color | default "transparent" -}}
+        <div class="hx:shrink-0 hx:w-64 hx:border hx:border-gray-200 hx:dark:border-neutral-700 hx:rounded-sm hx:p-4"
+          style="background-color: {{ $bgColor }} !important;">
           <h3 class="hx:text-lg hx:font-semibold hx:mb-3">
             <a href="{{ .RelPermalink }}" class="hx:text-blue-600 hx:dark:text-blue-400 hx:hover:underline">{{ .Title
               }}</a>
