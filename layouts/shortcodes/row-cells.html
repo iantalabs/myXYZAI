@@ -10,9 +10,10 @@ Usage in row/_index.md:
     <div class="hx:flex hx:gap-0 hx:mt-0 hx:overflow-x-auto" style="flex: 1; min-height: 0;">
       {{- $currentPage := .Page }}
       {{- range $currentPage.Sections }}
+      {{- $bgColor := .Params.bg_color | default "transparent" -}}
       <div
-        class="hx:shrink-0 hx:w-64 hx:border hx:border-gray-200 hx:dark:border-neutral-700 hx:rounded-sm hx:p-0 hx:bg-white hx:dark:bg-neutral-900 hx:flex hx:flex-col"
-        style="height: 100%;">
+        class="hx:shrink-0 hx:w-64 hx:border hx:border-gray-200 hx:dark:border-neutral-700 hx:rounded-sm hx:p-0 hx:flex hx:flex-col"
+        style="height: 100%; background-color: {{ $bgColor }} !important;">
         <h3 class="hx:text-lg hx:font-semibold hx:mb-3 hx:shrink-0">
           <a href="{{ .RelPermalink }}" class="hx:text-blue-600 hx:dark:text-blue-400 hx:hover:underline">{{ .Title
             }}</a>
