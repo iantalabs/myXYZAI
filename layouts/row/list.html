@@ -16,6 +16,7 @@
     <div class="hx:flex hx:flex-nowrap hx:gap-4" style="overflow:scroll">
       {{- range .Sections -}}
       {{- $bgColor := .Params.bg_color | default "transparent" -}}
+      <!-- DEBUG: bg_color = {{ $bgColor }}, title = {{ .Title }} -->
       <section
         class="hx:mt-8 hx:prose hx:dark:prose-invert hx:max-w-none hx:border hx:border-gray-200 hx:dark:border-neutral-700 hx:rounded-sm hx:p-3"
         style="background-color: {{ $bgColor }} !important;">
