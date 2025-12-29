@@ -385,14 +385,13 @@
       }
     }
 
-    // Add screenshot button for tab views
-    if (window.location.pathname.includes('/tab1/') || window.location.pathname.includes('/tab2/')) {
-      const tabMatch = window.location.pathname.match(/\/(tab\d+)\//);
-      if (tabMatch) {
-        const tabName = tabMatch[1];
-        
-        // Create screenshot button
-        const screenshotBtn = document.createElement('button');
+    // Add screenshot button for tab views only (not row or cell views)
+    const tabMatch = window.location.pathname.match(/\/(tab\d+)\/?$/);
+    if (tabMatch) {
+      const tabName = tabMatch[1];
+      
+      // Create screenshot button
+      const screenshotBtn = document.createElement('button');
         screenshotBtn.className = 'screenshot-btn';
         screenshotBtn.innerHTML = '📸 Tab';
         screenshotBtn.style.cssText = `
@@ -431,7 +430,7 @@
         
         document.body.appendChild(screenshotBtn);
       }
-    }
 
   });
 })();
+
