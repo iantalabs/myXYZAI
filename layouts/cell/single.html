@@ -1,0 +1,9 @@
+{{ define "main" }}
+{{- $bgColor := .Params.bg_color | default "transparent" -}}
+<div style="display: flex; flex-direction: column; height: calc(100vh - 12rem);">
+  <div class="hextra-cell hx:border hx:border-gray-200 hx:dark:border-neutral-700 hx:rounded-sm hx:p-3"
+    contenteditable="true" style="flex: 1; min-height: 0; overflow-y: auto; background-color: {{ $bgColor }};">
+    {{ .Content }}
+  </div>
+</div>
+{{ end }}

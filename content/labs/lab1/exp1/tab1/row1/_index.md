@@ -1,8 +1,6 @@
 ---
 title: Row 1
-type: row
-cascade:
-  type: row
+layout: row
 ---
 
 {{< row-cells >}}
