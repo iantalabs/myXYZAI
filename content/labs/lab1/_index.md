@@ -2,6 +2,7 @@
 title: Lab1 - XYZ AI dirs
 weight: 1
 cascade:
+  breadcrumbs: true
   type: docs
 ---
 
