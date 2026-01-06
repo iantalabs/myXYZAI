@@ -6,7 +6,9 @@ Usage in row/_index.md:
 {{< row-cells>}}
   */}}
 
-  <div style="display: flex; flex-direction: column; height: calc(100vh - 12rem);">
+  {{- $rowBgColor := .Page.Params.bg_color | default "transparent" -}}
+  <div
+    style="display: flex; flex-direction: column; height: calc(100vh - 12rem); background-color: {{ $rowBgColor }} !important;">
     <div class="hx:flex hx:gap-0 hx:mt-0 hx:overflow-x-auto" style="flex: 1; min-height: 0;">
       {{- $currentPage := .Page }}
       {{- range $currentPage.Sections }}
