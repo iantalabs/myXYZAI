@@ -337,14 +337,20 @@
             return element.classList && element.classList.contains('screenshot-btn');
           },
           onclone: (clonedDoc) => {
-            // Remove overflow hidden on all elements to show scrolled content
+            // Make overflow visible to capture scrolled content, but control vertical overflow in cells
             const allElements = clonedDoc.querySelectorAll('*');
             allElements.forEach(el => {
               if (el.style) {
                 el.style.overflow = 'visible';
                 el.style.overflowX = 'visible';
-                el.style.overflowY = 'visible';
               }
+            });
+            
+            // Keep cell content from overflowing vertically
+            const cellContentDivs = clonedDoc.querySelectorAll('.hx\\:prose');
+            cellContentDivs.forEach(div => {
+              div.style.overflowY = 'hidden';
+              div.style.maxHeight = 'calc(25vh - 4rem)'; // Row height minus headers/padding
             });
             
             // Re-apply row background colors to the full width
