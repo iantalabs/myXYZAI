@@ -11,7 +11,7 @@ Usage in tab/_index.md:
     <div class="hx:space-y-8">
       {{- range $currentPage.Sections }}
       {{- $rowBgColor := .Params.bg_color | default "transparent" -}}
-      <div class="hx:border hx:border-gray-300 hx:dark:border-neutral-600 hx:rounded-lg hx:p-0"
+      <div class="hx:p-0"
         style="height: 25vh; display: flex; flex-direction: column; background-color: {{ $rowBgColor }} !important;">
         <h2 class="hx:text-2xl hx:font-bold hx:mb-4" style="flex-shrink: 0;">
           <a href="{{ .RelPermalink }}" class="hx:text-blue-600 hx:dark:text-blue-400 hx:hover:underline">{{ .Title
