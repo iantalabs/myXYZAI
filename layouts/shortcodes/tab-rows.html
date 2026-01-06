@@ -10,9 +10,9 @@ Usage in tab/_index.md:
   <div style="position: relative; padding-bottom: 3rem;">
     <div class="hx:space-y-8">
       {{- range $currentPage.Sections }}
-      <div
-        class="hx:border hx:border-gray-300 hx:dark:border-neutral-600 hx:rounded-lg hx:p-0 hx:bg-gray-50 hx:dark:bg-neutral-800"
-        style="height: 25vh; display: flex; flex-direction: column;">
+      {{- $rowBgColor := .Params.bg_color | default "transparent" -}}
+      <div class="hx:border hx:border-gray-300 hx:dark:border-neutral-600 hx:rounded-lg hx:p-0"
+        style="height: 25vh; display: flex; flex-direction: column; background-color: {{ $rowBgColor }} !important;">
         <h2 class="hx:text-2xl hx:font-bold hx:mb-4" style="flex-shrink: 0;">
           <a href="{{ .RelPermalink }}" class="hx:text-blue-600 hx:dark:text-blue-400 hx:hover:underline">{{ .Title
             }}</a>
