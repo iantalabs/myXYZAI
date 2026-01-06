@@ -302,8 +302,21 @@
                          document.querySelector('main') || 
                          document.body;
       
-      // Get the element's position
-      const rect = tabContent.getBoundingClientRect();
+      // Find all row containers to get the full scrollable width and store bg colors
+      const rowContainers = tabContent.querySelectorAll('.hx\\:space-y-8 > div');
+      let maxScrollWidth = tabContent.scrollWidth;
+      const rowBgColors = [];
+      
+      // Check each row's cell container for overflow and collect bg colors
+      rowContainers.forEach(row => {
+        const cellContainer = row.querySelector('.hx\\:flex.hx\\:gap-0');
+        if (cellContainer) {
+          maxScrollWidth = Math.max(maxScrollWidth, cellContainer.scrollWidth + 300);
+        }
+        // Store the row's background color
+        const bgColor = window.getComputedStyle(row).backgroundColor;
+        rowBgColors.push(bgColor);
+      });
       
       try {
         const canvas = await html2canvas(tabContent, {
@@ -317,12 +330,53 @@
           y: -100,
           scrollX: 0,
           scrollY: 0,
-          windowWidth: tabContent.scrollWidth,
+          width: maxScrollWidth,
+          windowWidth: maxScrollWidth,
           windowHeight: tabContent.scrollHeight,
           ignoreElements: (element) => {
             return element.classList && element.classList.contains('screenshot-btn');
           },
           onclone: (clonedDoc) => {
+            // Remove overflow hidden on all elements to show scrolled content
+            const allElements = clonedDoc.querySelectorAll('*');
+            allElements.forEach(el => {
+              if (el.style) {
+                el.style.overflow = 'visible';
+                el.style.overflowX = 'visible';
+                el.style.overflowY = 'visible';
+              }
+            });
+            
+            // Re-apply row background colors to the full width
+            const clonedRows = clonedDoc.querySelectorAll('.hx\\:space-y-8 > div');
+            clonedRows.forEach((row, index) => {
+              if (rowBgColors[index] && rowBgColors[index] !== 'rgba(0, 0, 0, 0)' && rowBgColors[index] !== 'transparent') {
+                // Apply to row container
+                row.style.backgroundColor = rowBgColors[index];
+                row.style.setProperty('background-color', rowBgColors[index], 'important');
+                row.style.width = '100%';
+                
+                // Also ensure the cell container and all children have the same bg color
+                const cellContainer = row.querySelector('.hx\\:flex.hx\\:gap-0');
+                if (cellContainer) {
+                  cellContainer.style.backgroundColor = rowBgColors[index];
+                  cellContainer.style.setProperty('background-color', rowBgColors[index], 'important');
+                  cellContainer.style.width = '100%';
+                  
+                  // Apply to all cell divs within the container
+                  const cells = cellContainer.querySelectorAll('.hx\\:shrink-0');
+                  cells.forEach(cell => {
+                    // Only apply if cell doesn't have its own bg color
+                    const cellBg = window.getComputedStyle(cell).backgroundColor;
+                    if (cellBg === 'rgba(0, 0, 0, 0)' || cellBg === 'transparent') {
+                      cell.style.backgroundColor = rowBgColors[index];
+                      cell.style.setProperty('background-color', rowBgColors[index], 'important');
+                    }
+                  });
+                }
+              }
+            });
+            
             // Disable ALL stylesheets to avoid oklch parsing
             const linkElements = clonedDoc.querySelectorAll('link[rel="stylesheet"]');
             linkElements.forEach(link => link.disabled = true);
@@ -334,7 +388,8 @@
             const newStyle = clonedDoc.createElement('style');
             newStyle.textContent = `
               * { 
-                box-sizing: border-box; 
+                box-sizing: border-box;
+                overflow: visible !important;
               }
               body {
                 font-family: system-ui, -apple-system, sans-serif;
