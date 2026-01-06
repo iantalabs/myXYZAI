@@ -357,17 +357,19 @@
             const clonedRows = clonedDoc.querySelectorAll('.hx\\:space-y-8 > div');
             clonedRows.forEach((row, index) => {
               if (rowBgColors[index] && rowBgColors[index] !== 'rgba(0, 0, 0, 0)' && rowBgColors[index] !== 'transparent') {
-                // Apply to row container
+                // Apply to row container and make it full width
                 row.style.backgroundColor = rowBgColors[index];
                 row.style.setProperty('background-color', rowBgColors[index], 'important');
-                row.style.width = '100%';
+                row.style.width = maxScrollWidth + 'px';
+                row.style.minWidth = maxScrollWidth + 'px';
                 
                 // Also ensure the cell container and all children have the same bg color
                 const cellContainer = row.querySelector('.hx\\:flex.hx\\:gap-0');
                 if (cellContainer) {
                   cellContainer.style.backgroundColor = rowBgColors[index];
                   cellContainer.style.setProperty('background-color', rowBgColors[index], 'important');
-                  cellContainer.style.width = '100%';
+                  cellContainer.style.width = maxScrollWidth + 'px';
+                  cellContainer.style.minWidth = maxScrollWidth + 'px';
                   
                   // Apply to all cell divs within the container
                   const cells = cellContainer.querySelectorAll('.hx\\:shrink-0');
