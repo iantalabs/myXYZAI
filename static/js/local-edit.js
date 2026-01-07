@@ -251,6 +251,126 @@
       });
     });
     
+    // Add handlers for insert cell buttons
+    const insertCellBtns = document.querySelectorAll('.insert-cell-btn');
+    insertCellBtns.forEach(function(btn) {
+      btn.addEventListener('click', async function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const cellPath = btn.getAttribute('data-cell-path');
+        const cellWeight = btn.getAttribute('data-cell-weight');
+        
+        // Disable button and show loading state
+        btn.disabled = true;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '⏳';
+        
+        try {
+          const response = await fetch(`${API_URL}/api/insert-cell`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              cellPath: cellPath,
+              cellWeight: cellWeight
+            })
+          });
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            // Show success notification
+            const notification = document.createElement('div');
+            notification.textContent = '✅ New cell created! Refreshing...';
+            notification.style.cssText = 'position:fixed;top:20px;right:20px;padding:15px;background:#10b981;color:white;border-radius:8px;z-index:1000;box-shadow:0 4px 6px rgba(0,0,0,0.1);';
+            document.body.appendChild(notification);
+            
+            // Refresh the page after a short delay
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          } else {
+            throw new Error(result.error || 'Failed to insert cell');
+          }
+        } catch (error) {
+          console.error('Error inserting cell:', error);
+          
+          // Show error notification
+          const notification = document.createElement('div');
+          notification.innerHTML = '❌ Failed to insert cell!<br><small>' + error.message + '</small>';
+          notification.style.cssText = 'position:fixed;top:20px;right:20px;padding:15px;background:#ef4444;color:white;border-radius:8px;z-index:1000;max-width:300px;box-shadow:0 4px 6px rgba(0,0,0,0.1);';
+          document.body.appendChild(notification);
+          setTimeout(() => notification.remove(), 5000);
+          
+          // Re-enable button
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+        }
+      });
+    });
+    
+    // Add handlers for delete cell buttons
+    const deleteCellBtns = document.querySelectorAll('.delete-cell-btn');
+    deleteCellBtns.forEach(function(btn) {
+      btn.addEventListener('click', async function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const cellPath = btn.getAttribute('data-cell-path');
+        const cellWeight = btn.getAttribute('data-cell-weight');
+        
+        // Disable button and show loading state
+        btn.disabled = true;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '⏳';
+        
+        try {
+          const response = await fetch(`${API_URL}/api/delete-cell`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              cellPath: cellPath,
+              cellWeight: cellWeight
+            })
+          });
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            // Show success notification
+            const notification = document.createElement('div');
+            notification.textContent = '✅ Cell deleted! Refreshing...';
+            notification.style.cssText = 'position:fixed;top:20px;right:20px;padding:15px;background:#10b981;color:white;border-radius:8px;z-index:1000;box-shadow:0 4px 6px rgba(0,0,0,0.1);';
+            document.body.appendChild(notification);
+            
+            // Refresh the page after a short delay
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          } else {
+            throw new Error(result.error || 'Failed to delete cell');
+          }
+        } catch (error) {
+          console.error('Error deleting cell:', error);
+          
+          // Show error notification
+          const notification = document.createElement('div');
+          notification.innerHTML = '❌ Failed to delete cell!<br><small>' + error.message + '</small>';
+          notification.style.cssText = 'position:fixed;top:20px;right:20px;padding:15px;background:#ef4444;color:white;border-radius:8px;z-index:1000;max-width:300px;box-shadow:0 4px 6px rgba(0,0,0,0.1);';
+          document.body.appendChild(notification);
+          setTimeout(() => notification.remove(), 5000);
+          
+          // Re-enable button
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+        }
+      });
+    });
+    
     // // Add keyboard shortcut for save (Ctrl+S)
     // document.addEventListener('keydown', function(e) {
     //   // Check for Ctrl+S

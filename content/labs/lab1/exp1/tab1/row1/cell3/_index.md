@@ -1,20 +1,8 @@
 ---
-title: C
-weight: 3
-cascade:
-  type: docs
+title: B
+weight: 2
+type: cell
 ---
 
-{{< cell >}}
-
-## R1C3 Title
-
-Todo: Add an image content for Cell 3 in Row 1.
-
-test line
-
-another text line added
-
-next line
-
-{{< /cell >}}
+## R1C2
+content

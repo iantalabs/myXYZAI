@@ -1,18 +1,8 @@
 ---
-title: D
-weight: 4
-cascade:
-  type: docs
+title: C
+weight: 3
+type: cell
 ---
 
-{{< cell >}}
-
-## R1C4 Title
-
-- Todo: Add an image content for Cell 4 in Row 1.
-
-Adding a new line to R1C4
-
-new test line
-
-{{< /cell >}}
+## R1C3
+content
