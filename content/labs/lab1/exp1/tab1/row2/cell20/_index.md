@@ -1,14 +1,9 @@
 ---
 title: T
 weight: 20
-cascade:
-  type: docs
+type: cell
 ---
 
-{{< cell >}}
+## R2C20
 
-## R2C20 Title
-
-- Todo: Add an image content for Cell T in Row 2.
-
-{{< /cell >}}
+content of last cell

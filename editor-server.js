@@ -154,15 +154,6 @@ app.post('/api/insert-cell', (req, res) => {
       return null;
     }).filter(c => c !== null);
     
-    // Find the next cell number
-    const cellNumbers = cellDirs.map(name => {
-      const match = name.match(/cell(\d+)/);
-      return match ? parseInt(match[1]) : 0;
-    });
-    const nextCellNum = cellNumbers.length > 0 ? Math.max(...cellNumbers) + 1 : 1;
-    const newCellDir = `cell${nextCellNum}`;
-    const newCellPath = path.join(rowFullPath, newCellDir);
-    
     // Determine the weight for the new cell (insert after current cell)
     const currentWeight = cellWeight ? parseInt(cellWeight) : 0;
     const newWeight = currentWeight + 1;
@@ -177,32 +168,57 @@ app.post('/api/insert-cell', (req, res) => {
     const rowMatch = rowDir.match(/row(\d+)/);
     const rowNumber = rowMatch ? rowMatch[1] : '1';
     
-    // Update weights and titles of all cells with weight >= newWeight
-    cellsWithWeights.forEach(cell => {
-      if (cell.weight >= newWeight) {
-        const cellIndexPath = path.join(rowFullPath, cell.name, '_index.md');
-        let content = fs.readFileSync(cellIndexPath, 'utf8');
-        
-        // Update weight
-        const updatedWeight = cell.weight + 1;
-        content = content.replace(/weight:\s*\d+/, `weight: ${updatedWeight}`);
-        
-        // Update title (shift position by 1)
-        const oldPosition = sortedCells.filter(c => c.weight < cell.weight).length + 1;
-        const newPosition = oldPosition + 1;
-        const newTitle = numberToLetters(newPosition);
-        content = content.replace(/title:\s*.+/, `title: ${newTitle}`);
-        
-        // Update R<row>C<col> heading in content if it exists
-        content = content.replace(/##\s*R(\d+)C(\d+)/, (match, r, c) => {
-          return `## R${r}C${newPosition}`;
-        });
-        
-        fs.writeFileSync(cellIndexPath, content, 'utf8');
+    // Get cells that need to be shifted (weight >= newWeight), sorted in REVERSE order
+    const cellsToShift = cellsWithWeights
+      .filter(cell => cell.weight >= newWeight)
+      .sort((a, b) => b.weight - a.weight); // Sort descending (highest weight first)
+    
+    console.log(`Inserting cell at position ${newCellPosition}, shifting ${cellsToShift.length} cells`);
+    
+    // Shift cells in REVERSE order to avoid folder name conflicts
+    cellsToShift.forEach(cell => {
+      const oldPosition = sortedCells.filter(c => c.weight < cell.weight).length + 1;
+      const newPosition = oldPosition + 1;
+      const updatedWeight = cell.weight + 1;
+      
+      // Determine old and new folder names
+      const oldCellNum = cell.name.match(/cell(\d+)/)[1];
+      const newCellNum = newPosition;
+      const oldCellPath = path.join(rowFullPath, cell.name);
+      const newCellName = `cell${newCellNum}`;
+      const newCellPath = path.join(rowFullPath, newCellName);
+      
+      console.log(`Shifting ${cell.name} (weight ${cell.weight}) -> ${newCellName} (weight ${updatedWeight})`);
+      
+      // Read and update content before renaming
+      const cellIndexPath = path.join(oldCellPath, '_index.md');
+      let content = fs.readFileSync(cellIndexPath, 'utf8');
+      
+      // Update weight
+      content = content.replace(/weight:\s*\d+/, `weight: ${updatedWeight}`);
+      
+      // Update title
+      const newTitle = numberToLetters(newPosition);
+      content = content.replace(/title:\s*.+/, `title: ${newTitle}`);
+      
+      // Update R<row>C<col> heading in content if it exists
+      content = content.replace(/##\s*R(\d+)C(\d+)/, (match, r, c) => {
+        return `## R${r}C${newPosition}`;
+      });
+      
+      // Write updated content
+      fs.writeFileSync(cellIndexPath, content, 'utf8');
+      
+      // Rename folder if needed
+      if (oldCellPath !== newCellPath) {
+        fs.renameSync(oldCellPath, newCellPath);
       }
     });
     
-    // Create the new cell directory
+    // Create the new cell directory at the correct position
+    const newCellDir = `cell${newCellPosition}`;
+    const newCellPath = path.join(rowFullPath, newCellDir);
+    
     if (!fs.existsSync(newCellPath)) {
       fs.mkdirSync(newCellPath, { recursive: true });
     }
@@ -276,18 +292,39 @@ app.post('/api/delete-cell', (req, res) => {
     // Sort cells by weight to determine their positions
     const sortedCells = cellsWithWeights.sort((a, b) => a.weight - b.weight);
     
-    // Find the deleted cell's weight
+    // Find the deleted cell's weight and position
     const deletedWeight = cellWeight ? parseInt(cellWeight) : 0;
+    const deletedPosition = sortedCells.filter(c => c.weight < deletedWeight).length + 1;
+    
+    console.log(`Deleting cell at position ${deletedPosition} (weight ${deletedWeight})`);
     
     // Delete the cell directory recursively
     fs.rmSync(cellFullPath, { recursive: true, force: true });
     
-    // Filter out the deleted cell and get remaining cells
-    const remainingCells = sortedCells.filter(cell => cell.fullPath !== cellFullPath);
+    // Re-read all remaining cells from disk after deletion, with their current folder numbers
+    const remainingCellDirs = fs.readdirSync(rowFullPath)
+      .filter(name => name.startsWith('cell') && fs.statSync(path.join(rowFullPath, name)).isDirectory())
+      .map(name => {
+        const match = name.match(/cell(\d+)/);
+        const cellNum = match ? parseInt(match[1]) : 0;
+        return {
+          name,
+          cellNum,
+          fullPath: path.join(rowFullPath, name)
+        };
+      })
+      .sort((a, b) => a.cellNum - b.cellNum);
     
-    // First pass: rename all folders to temporary names to avoid conflicts
+    console.log(`After deletion, found ${remainingCellDirs.length} remaining cells:`, remainingCellDirs.map(c => c.name));
+    
+    // Only process cells that were AFTER the deleted position
+    const cellsToRenumber = remainingCellDirs.filter(cell => cell.cellNum > deletedPosition);
+    
+    console.log(`Need to renumber ${cellsToRenumber.length} cells (those after position ${deletedPosition})`);
+    
+    // First pass: rename affected folders to temporary names to avoid conflicts
     const tempNames = [];
-    remainingCells.forEach((cell, index) => {
+    cellsToRenumber.forEach((cell, index) => {
       const tempDir = `cell_temp_${index}`;
       const tempPath = path.join(rowFullPath, tempDir);
       console.log(`First pass: Renaming ${cell.fullPath} -> ${tempPath}`);
@@ -299,11 +336,12 @@ app.post('/api/delete-cell', (req, res) => {
     
     // Second pass: rename to final sequential names and update content
     tempNames.forEach(({ tempPath, index }) => {
-      const newPosition = index + 1;
+      // New position is deletedPosition + index (since we're filling the gap)
+      const newPosition = deletedPosition + index;
       const newCellDir = `cell${newPosition}`;
       const newCellPath = path.join(rowFullPath, newCellDir);
       
-      console.log(`Second pass: Renaming ${tempPath} -> ${newCellPath}`);
+      console.log(`Second pass: Renaming ${tempPath} -> ${newCellPath} (position ${newPosition})`);
       // Rename from temp to final name
       fs.renameSync(tempPath, newCellPath);
       

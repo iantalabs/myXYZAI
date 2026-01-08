@@ -1,14 +1,13 @@
 ---
 title: V
 weight: 22
-cascade:
-  type: docs
+type: cell
 ---
-
-{{< cell >}}
 
 ## R2C22 Title
 
-- Todo: Add an image content for Cell V in Row 2.
+Todo: Add an image content for Cell 4 in Row 2.
 
-{{< /cell >}}
+test writing in cell 4 of row 2
+
+test edits conducted
