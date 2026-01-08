@@ -8,6 +8,15 @@ const path = require('path');
 const app = express();
 const PORT = 3001;
 
+// Helper function for logging
+function logAction(action, filePath) {
+  const now = new Date();
+  const day = now.toISOString().split('T')[0];
+  const time = now.toTimeString().split(' ')[0];
+  const relativePath = filePath.replace(/^content\//, '/');
+  console.log(`SI ${day} ${time} ${action} ${relativePath}`);
+}
+
 // Configure multer for file uploads
 const upload = multer({ 
   storage: multer.memoryStorage(),
@@ -67,6 +76,8 @@ app.post('/api/save-cell', (req, res) => {
     
     // Write back to file
     fs.writeFileSync(fullPath, newContent, 'utf8');
+    
+    logAction('edit', filePath);
     
     res.json({ success: true, message: 'File saved successfully' });
   } catch (error) {
@@ -173,8 +184,6 @@ app.post('/api/insert-cell', (req, res) => {
       .filter(cell => cell.weight >= newWeight)
       .sort((a, b) => b.weight - a.weight); // Sort descending (highest weight first)
     
-    console.log(`Inserting cell at position ${newCellPosition}, shifting ${cellsToShift.length} cells`);
-    
     // Shift cells in REVERSE order to avoid folder name conflicts
     cellsToShift.forEach(cell => {
       const oldPosition = sortedCells.filter(c => c.weight < cell.weight).length + 1;
@@ -187,8 +196,6 @@ app.post('/api/insert-cell', (req, res) => {
       const oldCellPath = path.join(rowFullPath, cell.name);
       const newCellName = `cell${newCellNum}`;
       const newCellPath = path.join(rowFullPath, newCellName);
-      
-      console.log(`Shifting ${cell.name} (weight ${cell.weight}) -> ${newCellName} (weight ${updatedWeight})`);
       
       // Read and update content before renaming
       const cellIndexPath = path.join(oldCellPath, '_index.md');
@@ -235,6 +242,8 @@ content
 `;
     
     fs.writeFileSync(path.join(newCellPath, '_index.md'), indexContent, 'utf8');
+    
+    logAction('add', path.join(rowDir, newCellDir, '_index.md'));
     
     res.json({ 
       success: true, 
@@ -296,10 +305,10 @@ app.post('/api/delete-cell', (req, res) => {
     const deletedWeight = cellWeight ? parseInt(cellWeight) : 0;
     const deletedPosition = sortedCells.filter(c => c.weight < deletedWeight).length + 1;
     
-    console.log(`Deleting cell at position ${deletedPosition} (weight ${deletedWeight})`);
-    
     // Delete the cell directory recursively
     fs.rmSync(cellFullPath, { recursive: true, force: true });
+    
+    logAction('delete', path.join(cellPath, '_index.md'));
     
     // Re-read all remaining cells from disk after deletion, with their current folder numbers
     const remainingCellDirs = fs.readdirSync(rowFullPath)
@@ -315,24 +324,17 @@ app.post('/api/delete-cell', (req, res) => {
       })
       .sort((a, b) => a.cellNum - b.cellNum);
     
-    console.log(`After deletion, found ${remainingCellDirs.length} remaining cells:`, remainingCellDirs.map(c => c.name));
-    
     // Only process cells that were AFTER the deleted position
     const cellsToRenumber = remainingCellDirs.filter(cell => cell.cellNum > deletedPosition);
-    
-    console.log(`Need to renumber ${cellsToRenumber.length} cells (those after position ${deletedPosition})`);
     
     // First pass: rename affected folders to temporary names to avoid conflicts
     const tempNames = [];
     cellsToRenumber.forEach((cell, index) => {
       const tempDir = `cell_temp_${index}`;
       const tempPath = path.join(rowFullPath, tempDir);
-      console.log(`First pass: Renaming ${cell.fullPath} -> ${tempPath}`);
       fs.renameSync(cell.fullPath, tempPath);
       tempNames.push({ tempPath, index });
     });
-    
-    console.log(`First pass complete. Starting second pass...`);
     
     // Second pass: rename to final sequential names and update content
     tempNames.forEach(({ tempPath, index }) => {
@@ -341,7 +343,6 @@ app.post('/api/delete-cell', (req, res) => {
       const newCellDir = `cell${newPosition}`;
       const newCellPath = path.join(rowFullPath, newCellDir);
       
-      console.log(`Second pass: Renaming ${tempPath} -> ${newCellPath} (position ${newPosition})`);
       // Rename from temp to final name
       fs.renameSync(tempPath, newCellPath);
       

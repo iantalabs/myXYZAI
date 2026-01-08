@@ -5,4 +5,5 @@ type: cell
 ---
 
 ## R1C2
-content
+
+content updated on cell B
