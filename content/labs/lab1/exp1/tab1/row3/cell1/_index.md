@@ -9,7 +9,7 @@ cascade:
 
 ## R3C1 Title
 
-for Lab1 Experiment1 tab1
+for Lab1 Experiment1 tab1 - with edited content in tab, row or cell views.
 
 This is the content for Cell 1 in Row 3 in Tab 1 of Experiment 1 in Lab 1.
 

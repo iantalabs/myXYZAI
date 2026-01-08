@@ -71,8 +71,8 @@ app.post('/api/save-cell', (req, res) => {
       .replace(/\{\{<\s*\/cell\s*>\}\}/g, '')
       .trim();
     
-    // Write content without shortcode tags
-    const newContent = frontmatter + '\n' + cleanContent + '\n';
+    // Wrap content with cell shortcode tags
+    const newContent = frontmatter + '\n{{< cell >}}\n\n' + cleanContent + '\n\n{{< /cell >}}\n';
     
     // Write back to file
     fs.writeFileSync(fullPath, newContent, 'utf8');

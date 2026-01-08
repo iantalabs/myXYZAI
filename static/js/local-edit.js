@@ -224,7 +224,7 @@
                 
                 // Show success notification
                 const notification = document.createElement('div');
-                notification.textContent = '✅ Changes saved to file!';
+                notification.textContent = '✅ Saved';
                 notification.style.cssText = 'position:fixed;top:20px;right:20px;padding:15px;background:#10b981;color:white;border-radius:8px;z-index:1000;box-shadow:0 4px 6px rgba(0,0,0,0.1);';
                 document.body.appendChild(notification);
                 setTimeout(() => notification.remove(), 3000);

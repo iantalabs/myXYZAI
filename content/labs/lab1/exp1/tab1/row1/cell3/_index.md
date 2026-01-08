@@ -4,9 +4,11 @@ weight: 3
 type: cell
 ---
 
+{{< cell >}}
+
 ## R1C3
 
-content 
+content
 
 adding more md lines see how long lines are shown on screen
 
@@ -17,3 +19,5 @@ adding more md lines see how long lines are shown on screen
 and an img that must be copied first from other cell
 
 ![an image from lab1](http://localhost:1313/lab1/imgs/screen-5486.png)
+
+{{< /cell >}}
