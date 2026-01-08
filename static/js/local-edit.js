@@ -654,6 +654,22 @@
 
   });
 
+  // Save scroll positions for all rows when leaving the page
+  window.addEventListener('beforeunload', function() {
+    const cellContainers = document.querySelectorAll('.hx\\:flex.hx\\:gap-0.hx\\:overflow-x-auto');
+    cellContainers.forEach(function(container) {
+      const cellWithPath = container.querySelector('[data-cell-path]');
+      if (cellWithPath) {
+        const cellPath = cellWithPath.getAttribute('data-cell-path');
+        const tabRowMatch = cellPath.match(/tab(\d+)\/row(\d+)/);
+        if (tabRowMatch) {
+          const rowId = 'tab' + tabRowMatch[1] + '-row' + tabRowMatch[2];
+          localStorage.setItem('rowScrollPosition_' + rowId, container.scrollLeft);
+        }
+      }
+    });
+  });
+
   // Restore scroll position after page load
   window.addEventListener('load', function() {
     // Restore scroll position for all row containers
@@ -669,7 +685,7 @@
           const savedScrollPosition = localStorage.getItem('rowScrollPosition_' + rowId);
           if (savedScrollPosition !== null) {
             container.scrollLeft = parseFloat(savedScrollPosition);
-            localStorage.removeItem('rowScrollPosition_' + rowId);
+            // Don't remove - keep positions persistent across page navigations
           }
         }
       }
