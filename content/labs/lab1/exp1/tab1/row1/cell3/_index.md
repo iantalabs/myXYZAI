@@ -8,9 +8,7 @@ type: cell
 
 content 
 
-adding more md lines
-
-and a 
+adding more md lines see how long lines are shown on screen
 
 ### Sub-sub-title
 
