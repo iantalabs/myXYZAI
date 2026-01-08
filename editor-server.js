@@ -381,6 +381,274 @@ app.post('/api/delete-cell', (req, res) => {
   }
 });
 
+// Insert row endpoint
+app.post('/api/insert-row', (req, res) => {
+  const { rowPath, rowWeight } = req.body;
+  
+  if (!rowPath) {
+    return res.status(400).json({ error: 'Row path is required' });
+  }
+  
+  // Security: only allow inserting rows in content directory
+  if (!rowPath.startsWith('content/')) {
+    return res.status(403).json({ error: 'Invalid row path' });
+  }
+  
+  try {
+    // Extract tab directory from row path
+    const tabDir = path.dirname(rowPath);
+    const tabFullPath = path.join(__dirname, tabDir);
+    
+    // Parse the row number from the current row path
+    const currentRowMatch = rowPath.match(/row(\d+)/);
+    if (!currentRowMatch) {
+      return res.status(400).json({ error: 'Invalid row path format' });
+    }
+    
+    const currentRowNumber = parseInt(currentRowMatch[1]);
+    const newRowNumber = currentRowNumber + 1;
+    const newWeight = parseInt(rowWeight) + 1;
+    
+    // Read all existing rows in the tab with their weights
+    const rowDirs = fs.readdirSync(tabFullPath)
+      .filter(name => name.startsWith('row') && fs.statSync(path.join(tabFullPath, name)).isDirectory());
+    
+    const rowsWithWeights = rowDirs.map(name => {
+      const rowIndexPath = path.join(tabFullPath, name, '_index.md');
+      if (fs.existsSync(rowIndexPath)) {
+        const content = fs.readFileSync(rowIndexPath, 'utf8');
+        const weightMatch = content.match(/weight:\s*(\d+)/);
+        const titleMatch = content.match(/title:\s*(.+)/);
+        const weight = weightMatch ? parseInt(weightMatch[1]) : 999;
+        const title = titleMatch ? titleMatch[1].trim() : '';
+        const rowNumMatch = name.match(/row(\d+)/);
+        const rowNum = rowNumMatch ? parseInt(rowNumMatch[1]) : 0;
+        return { name, weight, title, rowNum, fullPath: path.join(tabFullPath, name) };
+      }
+      return null;
+    }).filter(r => r !== null);
+    
+    // Filter rows that need to be shifted (rowNum >= newRowNumber)
+    const rowsToShift = rowsWithWeights.filter(r => r.rowNum >= newRowNumber);
+    
+    // Sort in DESCENDING order by row number (highest first) to avoid conflicts
+    rowsToShift.sort((a, b) => b.rowNum - a.rowNum);
+    
+    // Shift existing rows by renaming from highest to lowest
+    rowsToShift.forEach(row => {
+      const oldRowPath = row.fullPath;
+      const newRowNum = row.rowNum + 1;
+      const updatedWeight = row.weight + 1;
+      const newRowPath = path.join(tabFullPath, `row${newRowNum}`);
+      
+      // Read and update content before renaming
+      const rowIndexPath = path.join(oldRowPath, '_index.md');
+      let content = fs.readFileSync(rowIndexPath, 'utf8');
+      
+      // Update weight
+      content = content.replace(/weight:\s*\d+/, `weight: ${updatedWeight}`);
+      
+      // Update title
+      content = content.replace(/title:\s*.+/, `title: Row ${newRowNum}`);
+      
+      // Write updated content
+      fs.writeFileSync(rowIndexPath, content, 'utf8');
+      
+      // Update all cells in this row to reflect new row number in R{row}C{col}
+      const cellDirs = fs.readdirSync(oldRowPath)
+        .filter(name => name.startsWith('cell') && fs.statSync(path.join(oldRowPath, name)).isDirectory());
+      
+      cellDirs.forEach(cellDir => {
+        const cellIndexPath = path.join(oldRowPath, cellDir, '_index.md');
+        if (fs.existsSync(cellIndexPath)) {
+          let cellContent = fs.readFileSync(cellIndexPath, 'utf8');
+          // Update R<row>C<col> heading
+          cellContent = cellContent.replace(/##\s*R(\d+)C(\d+)/, (match, r, c) => {
+            return `## R${newRowNum}C${c}`;
+          });
+          fs.writeFileSync(cellIndexPath, cellContent, 'utf8');
+        }
+      });
+      
+      // Rename folder if needed
+      if (oldRowPath !== newRowPath) {
+        fs.renameSync(oldRowPath, newRowPath);
+      }
+    });
+    
+    // Create the new row directory at the correct position
+    const newRowDir = `row${newRowNumber}`;
+    const newRowPath = path.join(tabFullPath, newRowDir);
+    
+    if (!fs.existsSync(newRowPath)) {
+      fs.mkdirSync(newRowPath, { recursive: true });
+    }
+    
+    // Create the _index.md file for the row
+    const rowTitle = `Row ${newRowNumber}`;
+    const rowIndexContent = `---
+title: ${rowTitle}
+weight: ${newWeight}
+type: row
+---
+`;
+    
+    fs.writeFileSync(path.join(newRowPath, '_index.md'), rowIndexContent, 'utf8');
+    
+    // Create 3 cells (A-C) in the new row for testing
+    for (let i = 1; i <= 3; i++) {
+      const cellDir = `cell${i}`;
+      const cellPath = path.join(newRowPath, cellDir);
+      
+      if (!fs.existsSync(cellPath)) {
+        fs.mkdirSync(cellPath, { recursive: true });
+      }
+      
+      const cellTitle = numberToLetters(i);
+      const cellIndexContent = `---
+title: ${cellTitle}
+weight: ${i}
+type: cell
+---
+
+{{< cell >}}
+
+## R${newRowNumber}C${i}
+content
+
+{{< /cell >}}
+`;
+      
+      fs.writeFileSync(path.join(cellPath, '_index.md'), cellIndexContent, 'utf8');
+    }
+    
+    logAction('add', path.join(tabDir, newRowDir, '_index.md'));
+    
+    res.json({ 
+      success: true, 
+      message: 'Row inserted successfully',
+      rowDir: newRowDir,
+      rowPath: path.join(tabDir, newRowDir)
+    });
+  } catch (error) {
+    console.error('Error inserting row:', error);
+    res.status(500).json({ error: 'Failed to insert row: ' + error.message });
+  }
+});
+
+// Delete row endpoint
+app.post('/api/delete-row', (req, res) => {
+  const { rowPath, rowWeight } = req.body;
+  
+  if (!rowPath) {
+    return res.status(400).json({ error: 'Row path is required' });
+  }
+  
+  // Security: only allow deleting rows in content directory
+  if (!rowPath.startsWith('content/')) {
+    return res.status(403).json({ error: 'Invalid row path' });
+  }
+  
+  try {
+    // Extract tab directory from row path
+    const tabDir = path.dirname(rowPath);
+    const tabFullPath = path.join(__dirname, tabDir);
+    const rowFullPath = path.join(__dirname, rowPath);
+    
+    // Check if row exists
+    if (!fs.existsSync(rowFullPath)) {
+      return res.status(404).json({ error: 'Row not found' });
+    }
+    
+    // Parse the row number from the path
+    const deletedRowMatch = rowPath.match(/row(\d+)/);
+    if (!deletedRowMatch) {
+      return res.status(400).json({ error: 'Invalid row path format' });
+    }
+    const deletedRowNumber = parseInt(deletedRowMatch[1]);
+    
+    // Delete the row directory recursively
+    fs.rmSync(rowFullPath, { recursive: true, force: true });
+    
+    logAction('delete', path.join(rowPath, '_index.md'));
+    
+    // Re-read all remaining rows from disk
+    const remainingRowDirs = fs.readdirSync(tabFullPath)
+      .filter(name => name.startsWith('row') && fs.statSync(path.join(tabFullPath, name)).isDirectory())
+      .map(name => {
+        const match = name.match(/row(\d+)/);
+        const rowNum = match ? parseInt(match[1]) : 0;
+        return {
+          name,
+          rowNum,
+          fullPath: path.join(tabFullPath, name)
+        };
+      })
+      .sort((a, b) => a.rowNum - b.rowNum);
+    
+    // Only process rows that were AFTER the deleted position
+    const rowsToRenumber = remainingRowDirs.filter(row => row.rowNum > deletedRowNumber);
+    
+    // First pass: rename affected folders to temporary names
+    const tempNames = [];
+    rowsToRenumber.forEach((row, index) => {
+      const tempDir = `row_temp_${index}`;
+      const tempPath = path.join(tabFullPath, tempDir);
+      fs.renameSync(row.fullPath, tempPath);
+      tempNames.push({ tempPath, index });
+    });
+    
+    // Second pass: rename to final sequential names and update content
+    tempNames.forEach(({ tempPath, index }) => {
+      // New position fills the gap
+      const newRowNum = deletedRowNumber + index;
+      const newRowDir = `row${newRowNum}`;
+      const newRowPath = path.join(tabFullPath, newRowDir);
+      
+      // Rename from temp to final name
+      fs.renameSync(tempPath, newRowPath);
+      
+      // Update the row _index.md file
+      const rowIndexPath = path.join(newRowPath, '_index.md');
+      let content = fs.readFileSync(rowIndexPath, 'utf8');
+      
+      const newWeight = newRowNum;
+      
+      // Update weight
+      content = content.replace(/weight:\s*\d+/, `weight: ${newWeight}`);
+      
+      // Update title
+      content = content.replace(/title:\s*.+/, `title: Row ${newRowNum}`);
+      
+      fs.writeFileSync(rowIndexPath, content, 'utf8');
+      
+      // Update all cells in this row to reflect new row number in R{row}C{col}
+      const cellDirs = fs.readdirSync(newRowPath)
+        .filter(name => name.startsWith('cell') && fs.statSync(path.join(newRowPath, name)).isDirectory());
+      
+      cellDirs.forEach(cellDir => {
+        const cellIndexPath = path.join(newRowPath, cellDir, '_index.md');
+        if (fs.existsSync(cellIndexPath)) {
+          let cellContent = fs.readFileSync(cellIndexPath, 'utf8');
+          // Update R<row>C<col> heading
+          cellContent = cellContent.replace(/##\s*R(\d+)C(\d+)/, (match, r, c) => {
+            return `## R${newRowNum}C${c}`;
+          });
+          fs.writeFileSync(cellIndexPath, cellContent, 'utf8');
+        }
+      });
+    });
+    
+    res.json({ 
+      success: true, 
+      message: 'Row deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting row:', error);
+    res.status(500).json({ error: 'Failed to delete row: ' + error.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Editor API server running on http://localhost:${PORT}`);
 });

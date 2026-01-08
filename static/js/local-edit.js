@@ -251,6 +251,154 @@
       });
     });
     
+    // Add handlers for insert row buttons
+    const insertRowBtns = document.querySelectorAll('.insert-row-btn');
+    insertRowBtns.forEach(function(btn) {
+      btn.addEventListener('click', async function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const rowPath = btn.getAttribute('data-row-path');
+        const rowWeight = btn.getAttribute('data-row-weight');
+        
+        // Disable button and show loading state
+        btn.disabled = true;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '⏳';
+        
+        try {
+          const response = await fetch(`${API_URL}/api/insert-row`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              rowPath: rowPath,
+              rowWeight: rowWeight
+            })
+          });
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            // Save scroll positions for ALL rows before reload
+            const allCellContainers = document.querySelectorAll('.hx\\:flex.hx\\:gap-0.hx\\:overflow-x-auto');
+            allCellContainers.forEach(function(container) {
+              const cellWithPath = container.querySelector('[data-cell-path]');
+              if (cellWithPath) {
+                const cp = cellWithPath.getAttribute('data-cell-path');
+                const match = cp.match(/tab(\d+)\/row(\d+)/);
+                if (match) {
+                  const rId = 'tab' + match[1] + '-row' + match[2];
+                  localStorage.setItem('rowScrollPosition_' + rId, container.scrollLeft);
+                }
+              }
+            });
+            
+            // Show success notification
+            const notification = document.createElement('div');
+            notification.textContent = '✅ New row created! Refreshing...';
+            notification.style.cssText = 'position:fixed;top:20px;right:20px;padding:15px;background:#10b981;color:white;border-radius:8px;z-index:1000;box-shadow:0 4px 6px rgba(0,0,0,0.1);';
+            document.body.appendChild(notification);
+            
+            // Refresh the page after a short delay
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          } else {
+            throw new Error(result.error || 'Failed to insert row');
+          }
+        } catch (error) {
+          console.error('Error inserting row:', error);
+          
+          // Show error notification
+          const notification = document.createElement('div');
+          notification.innerHTML = '❌ Failed to insert row!<br><small>' + error.message + '</small>';
+          notification.style.cssText = 'position:fixed;top:20px;right:20px;padding:15px;background:#ef4444;color:white;border-radius:8px;z-index:1000;max-width:300px;box-shadow:0 4px 6px rgba(0,0,0,0.1);';
+          document.body.appendChild(notification);
+          setTimeout(() => notification.remove(), 5000);
+          
+          // Re-enable button
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+        }
+      });
+    });
+    
+    // Add handlers for delete row buttons
+    const deleteRowBtns = document.querySelectorAll('.delete-row-btn');
+    deleteRowBtns.forEach(function(btn) {
+      btn.addEventListener('click', async function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const rowPath = btn.getAttribute('data-row-path');
+        const rowWeight = btn.getAttribute('data-row-weight');
+        
+        // Disable button and show loading state
+        btn.disabled = true;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '⏳';
+        
+        try {
+          const response = await fetch(`${API_URL}/api/delete-row`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              rowPath: rowPath,
+              rowWeight: rowWeight
+            })
+          });
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            // Save scroll positions for ALL rows before reload
+            const allCellContainers = document.querySelectorAll('.hx\\:flex.hx\\:gap-0.hx\\:overflow-x-auto');
+            allCellContainers.forEach(function(container) {
+              const cellWithPath = container.querySelector('[data-cell-path]');
+              if (cellWithPath) {
+                const cp = cellWithPath.getAttribute('data-cell-path');
+                const match = cp.match(/tab(\d+)\/row(\d+)/);
+                if (match) {
+                  const rId = 'tab' + match[1] + '-row' + match[2];
+                  localStorage.setItem('rowScrollPosition_' + rId, container.scrollLeft);
+                }
+              }
+            });
+            
+            // Show success notification
+            const notification = document.createElement('div');
+            notification.textContent = '✅ Row deleted! Refreshing...';
+            notification.style.cssText = 'position:fixed;top:20px;right:20px;padding:15px;background:#10b981;color:white;border-radius:8px;z-index:1000;box-shadow:0 4px 6px rgba(0,0,0,0.1);';
+            document.body.appendChild(notification);
+            
+            // Refresh the page after a short delay
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          } else {
+            throw new Error(result.error || 'Failed to delete row');
+          }
+        } catch (error) {
+          console.error('Error deleting row:', error);
+          
+          // Show error notification
+          const notification = document.createElement('div');
+          notification.innerHTML = '❌ Failed to delete row!<br><small>' + error.message + '</small>';
+          notification.style.cssText = 'position:fixed;top:20px;right:20px;padding:15px;background:#ef4444;color:white;border-radius:8px;z-index:1000;max-width:300px;box-shadow:0 4px 6px rgba(0,0,0,0.1);';
+          document.body.appendChild(notification);
+          setTimeout(() => notification.remove(), 5000);
+          
+          // Re-enable button
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+        }
+      });
+    });
+    
     // Add handlers for insert cell buttons
     const insertCellBtns = document.querySelectorAll('.insert-cell-btn');
     insertCellBtns.forEach(function(btn) {

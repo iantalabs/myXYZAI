@@ -1,9 +1,8 @@
 ---
-title: Row 3
-weight: 3
+title: Row 4
+weight: 4
 type: row
 layout: row
-bg_color: '#88EEFF'
 ---
 
 {{< row-cells >}}

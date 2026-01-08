@@ -1,6 +1,5 @@
 ---
 title: Row 1
-layout: row
+weight: 1
+type: row
 ---
-
-{{< row-cells >}}

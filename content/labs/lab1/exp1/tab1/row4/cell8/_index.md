@@ -7,8 +7,8 @@ cascade:
 
 {{< cell >}}
 
-## R3C8 Title
+## R4C8 Title
 
-- Todo: Add an image content for Cell P in Row 2.
+- Todo: Add an image content for Cell 8 in Row 3.
 
 {{< /cell >}}
