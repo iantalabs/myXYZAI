@@ -281,6 +281,30 @@
           const result = await response.json();
           
           if (result.success) {
+            // Save scroll positions for ALL rows before reload
+            const allCellContainers = document.querySelectorAll('.hx\\:flex.hx\\:gap-0.hx\\:overflow-x-auto');
+            allCellContainers.forEach(function(container) {
+              const cellWithPath = container.querySelector('[data-cell-path]');
+              if (cellWithPath) {
+                const cp = cellWithPath.getAttribute('data-cell-path');
+                const match = cp.match(/tab(\d+)\/row(\d+)/);
+                if (match) {
+                  const rId = 'tab' + match[1] + '-row' + match[2];
+                  localStorage.setItem('rowScrollPosition_' + rId, container.scrollLeft);
+                }
+              }
+            });
+            
+            // For the row where the cell was added, scroll to the end to show the new cell
+            const cellContainer = btn.closest('.hx\\:flex.hx\\:gap-0.hx\\:overflow-x-auto');
+            if (cellContainer) {
+              const tabRowMatch = cellPath.match(/tab(\d+)\/row(\d+)/);
+              if (tabRowMatch) {
+                const rowId = 'tab' + tabRowMatch[1] + '-row' + tabRowMatch[2];
+                localStorage.setItem('rowScrollPosition_' + rowId, cellContainer.scrollWidth);
+              }
+            }
+            
             // Show success notification
             const notification = document.createElement('div');
             notification.textContent = '✅ New cell created! Refreshing...';
@@ -341,6 +365,20 @@
           const result = await response.json();
           
           if (result.success) {
+            // Save scroll positions for ALL rows before reload
+            const allCellContainers = document.querySelectorAll('.hx\\:flex.hx\\:gap-0.hx\\:overflow-x-auto');
+            allCellContainers.forEach(function(container) {
+              const cellWithPath = container.querySelector('[data-cell-path]');
+              if (cellWithPath) {
+                const cp = cellWithPath.getAttribute('data-cell-path');
+                const match = cp.match(/tab(\d+)\/row(\d+)/);
+                if (match) {
+                  const rId = 'tab' + match[1] + '-row' + match[2];
+                  localStorage.setItem('rowScrollPosition_' + rId, container.scrollLeft);
+                }
+              }
+            });
+            
             // Show success notification
             const notification = document.createElement('div');
             notification.textContent = '✅ Cell deleted! Refreshing...';
@@ -614,6 +652,28 @@
         document.body.appendChild(screenshotBtn);
       }
 
+  });
+
+  // Restore scroll position after page load
+  window.addEventListener('load', function() {
+    // Restore scroll position for all row containers
+    const cellContainers = document.querySelectorAll('.hx\\:flex.hx\\:gap-0.hx\\:overflow-x-auto');
+    cellContainers.forEach(function(container) {
+      // Find a cell with data-cell-path to identify this row
+      const cellWithPath = container.querySelector('[data-cell-path]');
+      if (cellWithPath) {
+        const cellPath = cellWithPath.getAttribute('data-cell-path');
+        const tabRowMatch = cellPath.match(/tab(\d+)\/row(\d+)/);
+        if (tabRowMatch) {
+          const rowId = 'tab' + tabRowMatch[1] + '-row' + tabRowMatch[2];
+          const savedScrollPosition = localStorage.getItem('rowScrollPosition_' + rowId);
+          if (savedScrollPosition !== null) {
+            container.scrollLeft = parseFloat(savedScrollPosition);
+            localStorage.removeItem('rowScrollPosition_' + rowId);
+          }
+        }
+      }
+    });
   });
 })();
 

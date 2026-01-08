@@ -237,8 +237,12 @@ weight: ${newWeight}
 type: cell
 ---
 
+{{< cell >}}
+
 ## R${rowNumber}C${newCellPosition}
 content
+
+{{< /cell >}}
 `;
     
     fs.writeFileSync(path.join(newCellPath, '_index.md'), indexContent, 'utf8');

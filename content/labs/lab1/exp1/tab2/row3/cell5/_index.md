@@ -9,8 +9,8 @@ cascade:
 
 ## R3C5 Title
 
-Todo: Add an image content for Cell 5 in Row 3.
+Todo: Add an image content for Cell 6 in Row 3.
 
-new test line
+test line
 
 {{< /cell >}}

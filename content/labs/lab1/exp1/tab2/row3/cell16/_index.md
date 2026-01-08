@@ -9,6 +9,6 @@ cascade:
 
 ## R3C16 Title
 
-- Todo: Add an image content for Cell P in Row 3.
+- Todo: Add an image content for Cell Q in Row 3.
 
 {{< /cell >}}
