@@ -23,29 +23,32 @@ menu:
     - name: Blog
       pageRef: /blog
       weight: 1
+    - name: Orgs
+      pageRef: /orgs
+      weight: 2
     - name: Labs
       pageRef: /labs
-      weight: 2
+      weight: 3
     - name: Docs
       pageRef: /docs
-      weight: 3
+      weight: 4
     - name: About
       pageRef: /about
-      weight: 4
+      weight: 5
     - name: Contact ↗
       url: "https://github.com/iantalabs/myXYZAI/issues/new"
-      weight: 5
-    - name: Search
       weight: 6
+    - name: Search
+      weight: 7
       params:
         type: search
     - name: GitHub
-      weight: 7
+      weight: 8
       url: "https://github.com/iantalabs/myXYZAI"
       params:
         icon: github
     - name: LinkedIn
-      weight: 8
+      weight: 9
       url: "https://www.linkedin.com/company/iantalabs/"
       params:
         icon: linkedin

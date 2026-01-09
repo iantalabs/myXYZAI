@@ -11,8 +11,9 @@ Sample XYZ AI folder structure: /labL/expE/tabT/rowR/cellC/index.md
 
 {{< cards >}}
 {{< card link="blog" title="Blog" icon="pencil" >}}
-{{< card link="docs" title="Docs" icon="book-open" >}}
+{{< card link="orgs" title="Orgs" icon="briefcase" >}}
 {{< card link="labs" title="Labs" icon="code" >}}
+{{< card link="docs" title="Docs" icon="book-open" >}}
 {{< card link="about" title="About" icon="user" >}}
 {{< /cards >}}
 

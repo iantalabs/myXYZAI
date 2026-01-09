@@ -135,7 +135,7 @@
     // Fallback to URL-based path (for non-row layouts)
     const path = window.location.pathname;
     // Convert URL path to file path
-    // e.g., /labs/lab1/exp1/tab1/row1/cell1/ -> content/labs/lab1/exp1/tab1/row1/cell1/_index.md
+    // e.g., /orgs/org1/prod1/sow1/ver1/tab1/row1/cell1/ -> content/orgs/org1/prod1/sow1/ver1/tab1/row1/cell1/_index.md
     let filePath = 'content' + path;
     if (filePath.endsWith('/')) {
       filePath += '_index.md';
@@ -733,7 +733,7 @@
         canvas.toBlob(async (blob) => {
           const formData = new FormData();
           formData.append('image', blob, `${tabName}.png`);
-          formData.append('path', 'content/labs/lab1/exp1/images');
+          formData.append('path', 'content/orgs/org1/prod1/sow1/ver1/images');
           
           try {
             const response = await fetch(`${API_URL}/api/save-screenshot`, {
