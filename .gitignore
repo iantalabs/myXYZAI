@@ -5,3 +5,7 @@ resources/
 
 # Editor
 .vscode/
+
+# Node.js
+node_modules/
+package-lock.json
