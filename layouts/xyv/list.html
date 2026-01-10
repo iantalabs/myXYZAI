@@ -1,0 +1,213 @@
+{{- define "main" -}}
+<div class='hx:mx-auto hx:flex hextra-max-page-width'>
+  {{ partial "sidebar.html" (dict "context" .) }}
+  <article
+    class="hx:w-full hx:break-words hx:flex hx:min-h-[calc(100vh-var(--navbar-height))] hx:min-w-0 hx:justify-center hx:pb-8 hx:pr-[calc(env(safe-area-inset-right)-1.5rem)]">
+    <main class="hx:w-full hx:min-w-0 hx:max-w-full hx:px-6 hx:pt-4 hx:md:px-12">
+      {{ partial "breadcrumb.html" (dict "page" . "enable" true) }}
+      <!-- XYV header -->
+      <header class="hx:mb-6">
+        <h1 class="hx:text-3xl hx:font-bold">{{ .Title }}</h1>
+        {{- with .Summary }}
+        <p class="hx:mt-2 hx:text-gray-600 hx:dark:text-gray-300">{{ . }}</p>
+        {{- end }}
+      </header>
+
+      <!-- XYV Layout: 3 containers - X, Y, and Log (horizontal layout) -->
+      <div class="hx:flex">
+        {{- $currentPage := . }}
+        {{- $tab1 := .GetPage "tab1" }}
+        {{- $tab2 := .GetPage "tab2" }}
+        {{- $log := .GetPage "log" }}
+
+        <!-- X Container: Tab 1 (30% width) -->
+        <div style="width: 30%;"
+          class="hx:border hx:border-gray-300 hx:dark:border-neutral-600 hx:rounded-lg hx:bg-gray-50 hx:dark:bg-neutral-800">
+          <h2 class="hx:text-2xl hx:font-bold hx:mb-4">X.<a href="{{ $tab1.RelPermalink }}"
+              class="hx:text-blue-600 hx:dark:text-blue-400 hx:hover:underline">Tab 1</a></h2>
+          {{- if $tab1 }}
+          <div class="hx:space-y-8">
+            {{- range $tab1.Sections }}
+            {{- $rowBgColor := .Params.bg_color | default "transparent" -}}
+            <div class="hx:p-0"
+              style="height: 25vh; display: flex; flex-direction: column; background-color: {{ $rowBgColor }} !important;">
+              <h3 class="hx:text-xl hx:font-bold hx:mb-4 hx:flex hx:items-center hx:gap-2" style="flex-shrink: 0;">
+                <button
+                  class="insert-row-btn hx:text-green-600 hx:hover:text-green-700 hx:font-bold hx:text-xl hx:cursor-pointer hx:bg-transparent hx:border-none"
+                  data-row-path="content/{{ .File.Dir }}" data-row-weight="{{ .Weight }}"
+                  title="Insert blank row below">+</button>
+                <button
+                  class="delete-row-btn hx:font-bold hx:text-xl hx:cursor-pointer hx:bg-transparent hx:border-none"
+                  style="color: #dc2626;" data-row-path="content/{{ .File.Dir }}" data-row-weight="{{ .Weight }}"
+                  title="Delete row - No undo available!">-</button>
+                <a href="{{ .RelPermalink }}" class="hx:text-blue-600 hx:dark:text-blue-400 hx:hover:underline">{{
+                  .Title
+                  }}</a>
+              </h3>
+
+              <!-- Cells displayed horizontally -->
+              <div class="hx:flex hx:gap-0 hx:overflow-x-auto hx:pb-4" style="flex: 1; min-height: 0;">
+                {{- range .Sections }}
+                {{- $bgColor := .Params.bg_color | default "transparent" -}}
+                <div
+                  class="hx:shrink-0 hx:w-64 hx:border hx:border-gray-200 hx:dark:border-neutral-700 hx:rounded-sm hx:p-0"
+                  style="height: 100%; display: flex; flex-direction: column; background-color: {{ $bgColor }} !important;">
+                  <h4 class="hx:text-lg hx:font-semibold hx:mb-3 hx:flex hx:items-center hx:justify-between hx:px-2"
+                    style="flex-shrink: 0;">
+                    <a href="{{ .RelPermalink }}" class="hx:text-blue-600 hx:dark:text-blue-400 hx:hover:underline">{{
+                      .Title }}</a>
+                    <div class="hx:flex hx:gap-1">
+                      <button
+                        class="insert-cell-btn hx:ml-2 hx:text-green-600 hx:hover:text-green-700 hx:font-bold hx:text-xl hx:cursor-pointer hx:bg-transparent hx:border-none"
+                        data-cell-path="content/{{ .File.Dir }}" data-cell-weight="{{ .Weight }}"
+                        title="Insert cell to the right">+</button>
+                      <button
+                        class="delete-cell-btn hx:font-bold hx:text-xl hx:cursor-pointer hx:bg-transparent hx:border-none"
+                        style="color: #dc2626;" data-cell-path="content/{{ .File.Dir }}"
+                        data-cell-weight="{{ .Weight }}" title="Delete cell file - No undo available!">-</button>
+                    </div>
+                  </h4>
+                  <div class="hx:prose hx:prose-sm hx:dark:prose-invert hx:max-w-none hx:overflow-y-auto"
+                    contenteditable="true" data-cell-path="content/{{ .File.Dir }}" style="flex: 1; min-height: 0;">
+                    {{ .Content }}
+                  </div>
+                </div>
+                {{- end }}
+              </div>
+            </div>
+            {{- end }}
+          </div>
+          {{- else }}
+          <p class="hx:text-gray-500">Tab 1 not found</p>
+          {{- end }}
+        </div>
+
+        <!-- Y Container: Tab 2 (30% width) -->
+        <div style="width: 30%;"
+          class="hx:border hx:border-gray-300 hx:dark:border-neutral-600 hx:rounded-lg hx:bg-gray-50 hx:dark:bg-neutral-800">
+          <h2 class="hx:text-2xl hx:font-bold hx:mb-4">Y.<a href="{{ $tab2.RelPermalink }}"
+              class="hx:text-blue-600 hx:dark:text-blue-400 hx:hover:underline">Tab 2</a></h2>
+          {{- if $tab2 }}
+          <div class="hx:space-y-8">
+            {{- range $tab2.Sections }}
+            {{- $rowBgColor := .Params.bg_color | default "transparent" -}}
+            <div class="hx:p-0"
+              style="height: 25vh; display: flex; flex-direction: column; background-color: {{ $rowBgColor }} !important;">
+              <h3 class="hx:text-xl hx:font-bold hx:mb-4 hx:flex hx:items-center hx:gap-2" style="flex-shrink: 0;">
+                <button
+                  class="insert-row-btn hx:text-green-600 hx:hover:text-green-700 hx:font-bold hx:text-xl hx:cursor-pointer hx:bg-transparent hx:border-none"
+                  data-row-path="content/{{ .File.Dir }}" data-row-weight="{{ .Weight }}"
+                  title="Insert blank row below">+</button>
+                <button
+                  class="delete-row-btn hx:font-bold hx:text-xl hx:cursor-pointer hx:bg-transparent hx:border-none"
+                  style="color: #dc2626;" data-row-path="content/{{ .File.Dir }}" data-row-weight="{{ .Weight }}"
+                  title="Delete row - No undo available!">-</button>
+                <a href="{{ .RelPermalink }}" class="hx:text-blue-600 hx:dark:text-blue-400 hx:hover:underline">{{
+                  .Title
+                  }}</a>
+              </h3>
+
+              <!-- Cells displayed horizontally -->
+              <div class="hx:flex hx:gap-0 hx:overflow-x-auto hx:pb-4" style="flex: 1; min-height: 0;">
+                {{- range .Sections }}
+                {{- $bgColor := .Params.bg_color | default "transparent" -}}
+                <div
+                  class="hx:shrink-0 hx:w-64 hx:border hx:border-gray-200 hx:dark:border-neutral-700 hx:rounded-sm hx:p-0"
+                  style="height: 100%; display: flex; flex-direction: column; background-color: {{ $bgColor }} !important;">
+                  <h4 class="hx:text-lg hx:font-semibold hx:mb-3 hx:flex hx:items-center hx:justify-between hx:px-2"
+                    style="flex-shrink: 0;">
+                    <a href="{{ .RelPermalink }}" class="hx:text-blue-600 hx:dark:text-blue-400 hx:hover:underline">{{
+                      .Title }}</a>
+                    <div class="hx:flex hx:gap-1">
+                      <button
+                        class="insert-cell-btn hx:ml-2 hx:text-green-600 hx:hover:text-green-700 hx:font-bold hx:text-xl hx:cursor-pointer hx:bg-transparent hx:border-none"
+                        data-cell-path="content/{{ .File.Dir }}" data-cell-weight="{{ .Weight }}"
+                        title="Insert cell to the right">+</button>
+                      <button
+                        class="delete-cell-btn hx:font-bold hx:text-xl hx:cursor-pointer hx:bg-transparent hx:border-none"
+                        style="color: #dc2626;" data-cell-path="content/{{ .File.Dir }}"
+                        data-cell-weight="{{ .Weight }}" title="Delete cell file - No undo available!">-</button>
+                    </div>
+                  </h4>
+                  <div class="hx:prose hx:prose-sm hx:dark:prose-invert hx:max-w-none hx:overflow-y-auto"
+                    contenteditable="true" data-cell-path="content/{{ .File.Dir }}" style="flex: 1; min-height: 0;">
+                    {{ .Content }}
+                  </div>
+                </div>
+                {{- end }}
+              </div>
+            </div>
+            {{- end }}
+          </div>
+          {{- else }}
+          <p class="hx:text-gray-500">Tab 2 not found</p>
+          {{- end }}
+        </div>
+
+        <!-- Log Container: Tab Log (40% width) -->
+        <div style="width: 40%;"
+          class="hx:border hx:border-gray-300 hx:dark:border-neutral-600 hx:rounded-lg hx:bg-gray-50 hx:dark:bg-neutral-800">
+          <h2 class="hx:text-2xl hx:font-bold hx:mb-4">Log.<a href="{{ $log.RelPermalink }}"
+              class="hx:text-blue-600 hx:dark:text-blue-400 hx:hover:underline">tab</a></h2>
+          {{- if $log }}
+          <div class="hx:space-y-8">
+            {{- range $log.Sections }}
+            {{- $rowBgColor := .Params.bg_color | default "transparent" -}}
+            <div class="hx:p-0"
+              style="height: 25vh; display: flex; flex-direction: column; background-color: {{ $rowBgColor }} !important;">
+              <h3 class="hx:text-xl hx:font-bold hx:mb-4 hx:flex hx:items-center hx:gap-2" style="flex-shrink: 0;">
+                <button
+                  class="insert-row-btn hx:text-green-600 hx:hover:text-green-700 hx:font-bold hx:text-xl hx:cursor-pointer hx:bg-transparent hx:border-none"
+                  data-row-path="content/{{ .File.Dir }}" data-row-weight="{{ .Weight }}"
+                  title="Insert blank row below">+</button>
+                <button
+                  class="delete-row-btn hx:font-bold hx:text-xl hx:cursor-pointer hx:bg-transparent hx:border-none"
+                  style="color: #dc2626;" data-row-path="content/{{ .File.Dir }}" data-row-weight="{{ .Weight }}"
+                  title="Delete row - No undo available!">-</button>
+                <a href="{{ .RelPermalink }}" class="hx:text-blue-600 hx:dark:text-blue-400 hx:hover:underline">{{
+                  .Title
+                  }}</a>
+              </h3>
+
+              <!-- Cells displayed horizontally -->
+              <div class="hx:flex hx:gap-0 hx:overflow-x-auto hx:pb-4" style="flex: 1; min-height: 0;">
+                {{- range .Sections }}
+                {{- $bgColor := .Params.bg_color | default "transparent" -}}
+                <div
+                  class="hx:shrink-0 hx:w-64 hx:border hx:border-gray-200 hx:dark:border-neutral-700 hx:rounded-sm hx:p-0"
+                  style="height: 100%; display: flex; flex-direction: column; background-color: {{ $bgColor }} !important;">
+                  <h4 class="hx:text-lg hx:font-semibold hx:mb-3 hx:flex hx:items-center hx:justify-between hx:px-2"
+                    style="flex-shrink: 0;">
+                    <a href="{{ .RelPermalink }}" class="hx:text-blue-600 hx:dark:text-blue-400 hx:hover:underline">{{
+                      .Title }}</a>
+                    <div class="hx:flex hx:gap-1">
+                      <button
+                        class="insert-cell-btn hx:ml-2 hx:text-green-600 hx:hover:text-green-700 hx:font-bold hx:text-xl hx:cursor-pointer hx:bg-transparent hx:border-none"
+                        data-cell-path="content/{{ .File.Dir }}" data-cell-weight="{{ .Weight }}"
+                        title="Insert cell to the right">+</button>
+                      <button
+                        class="delete-cell-btn hx:font-bold hx:text-xl hx:cursor-pointer hx:bg-transparent hx:border-none"
+                        style="color: #dc2626;" data-cell-path="content/{{ .File.Dir }}"
+                        data-cell-weight="{{ .Weight }}" title="Delete cell file - No undo available!">-</button>
+                    </div>
+                  </h4>
+                  <div class="hx:prose hx:prose-sm hx:dark:prose-invert hx:max-w-none hx:overflow-y-auto"
+                    contenteditable="true" data-cell-path="content/{{ .File.Dir }}" style="flex: 1; min-height: 0;">
+                    {{ .Content }}
+                  </div>
+                </div>
+                {{- end }}
+              </div>
+            </div>
+            {{- end }}
+          </div>
+          {{- else }}
+          <p class="hx:text-gray-500">Tab Log not found</p>
+          {{- end }}
+        </div>
+
+      </div>
+    </main>
+  </article>
+</div>
+{{- end -}}

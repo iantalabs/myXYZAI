@@ -1,6 +1,6 @@
 ---
 title: SOW1 - XYv1
 weight: 1
+layout: xyv
+type: xyv
 ---
-
-SOW1 - XY Version 1 - Project X tab, Agent Y tab and Logs.
