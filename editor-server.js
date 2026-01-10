@@ -93,7 +93,7 @@ app.post('/api/save-screenshot', upload.single('image'), (req, res) => {
       return res.status(400).json({ error: 'No image file uploaded' });
     }
 
-    const targetPath = req.body.path || 'content/orgs/org1/prod1/sow1/ver1/images';
+    const targetPath = req.body.path || 'content/orgs/org1/prod1/sow1/xyv1/images';
     const fileName = req.file.originalname;
     
     // Security: only allow saving to specific directories
@@ -175,7 +175,7 @@ app.post('/api/insert-cell', (req, res) => {
     const newCellPosition = sortedCells.filter(c => c.weight < newWeight).length + 1;
     const cellTitle = numberToLetters(newCellPosition);
     
-    // Extract row number from path (e.g., content/orgs/org1/prod1/sow1/ver1/tab1/row1 -> 1)
+    // Extract row number from path (e.g., content/orgs/org1/prod1/sow1/xyv1/tab1/row1 -> 1)
     const rowMatch = rowDir.match(/row(\d+)/);
     const rowNumber = rowMatch ? rowMatch[1] : '1';
     
