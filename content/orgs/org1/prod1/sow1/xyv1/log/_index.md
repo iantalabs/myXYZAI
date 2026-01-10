@@ -1,9 +1,11 @@
 ---
-title: Log
+title: XY Log
 layout: tab
 weight: 3
 cascade:
   type: docs
 ---
 
-## Log
+## Log Tab
+
+{{< tab-rows >}}
