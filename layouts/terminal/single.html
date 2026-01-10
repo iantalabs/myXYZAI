@@ -1,0 +1,96 @@
+{{ define "main" }}
+<style>
+  .terminal-container {
+    width: 100%;
+    height: 100%;
+  }
+
+  #terminal {
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<!-- Load xterm.js from CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.min.css" />
+
+<div class='hx:mx-auto hx:flex hextra-max-page-width'>
+  {{ partial "sidebar.html" (dict "context" .) }}
+  {{ partial "toc.html" . }}
+  <article
+    class="hx:w-full hx:break-words hx:flex hx:min-h-[calc(100vh-var(--navbar-height))] hx:min-w-0 hx:justify-center hx:pb-8 hx:pr-[calc(env(safe-area-inset-right)-1.5rem)]">
+    <main class="hx:w-full hx:min-w-0 hx:max-w-6xl hx:px-6 hx:pt-4 hx:md:px-12">
+      {{ partial "breadcrumb.html" (dict "page" . "enable" true) }}
+      <div style="display: flex; flex-direction: column; height: calc(100vh - 12rem);">
+        <div class="terminal-container hx:border hx:border-gray-200 hx:dark:border-neutral-700 hx:rounded-sm"
+          style="flex: 1; overflow: hidden; background-color: #000; padding: 0.5rem;">
+          <div id="terminal"></div>
+        </div>
+      </div>
+    </main>
+  </article>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.min.js"></script>
+<script>
+  // Initialize xterm.js terminal
+  document.addEventListener('DOMContentLoaded', function () {
+    const term = new Terminal({
+      cursorBlink: true,
+      fontSize: 14,
+      fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+      theme: {
+        background: '#000000',
+        foreground: '#ffffff',
+        cursor: '#ffffff',
+        selection: '#ffffff40'
+      }
+    });
+
+    const fitAddon = new FitAddon.FitAddon();
+    term.loadAddon(fitAddon);
+
+    term.open(document.getElementById('terminal'));
+    fitAddon.fit();
+
+    // Welcome message
+    term.writeln('Terminal Cell - XYZ AI');
+    term.writeln('This is a web-based terminal using xterm.js');
+    term.writeln('');
+    term.write('$ ');
+
+    let currentLine = '';
+
+    // Handle terminal input
+    term.onData(data => {
+      if (data === '\r') { // Enter key
+        term.write('\r\n');
+        if (currentLine.trim() === 'clear') {
+          term.clear();
+        } else if (currentLine.trim()) {
+          term.writeln('Command not yet implemented: ' + currentLine);
+        }
+        currentLine = '';
+        term.write('$ ');
+      } else if (data === '\x7F') { // Backspace
+        if (currentLine.length > 0) {
+          currentLine = currentLine.slice(0, -1);
+          term.write('\b \b');
+        }
+      } else if (data === '\x03') { // Ctrl+C
+        term.write('^C\r\n$ ');
+        currentLine = '';
+      } else {
+        currentLine += data;
+        term.write(data);
+      }
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      fitAddon.fit();
+    });
+  });
+</script>
+{{ end }}

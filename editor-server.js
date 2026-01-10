@@ -4,9 +4,19 @@ const bodyParser = require('body-parser');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
+const http = require('http');
+const WebSocket = require('ws');
+const pty = require('node-pty');
+const os = require('os');
 
 const app = express();
 const PORT = 3001;
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+
+// Store active terminal sessions
+const terminals = {};
+let terminalId = 0;
 
 // Helper function for logging
 function logAction(action, filePath) {
@@ -258,6 +268,134 @@ content
   } catch (error) {
     console.error('Error inserting cell:', error);
     res.status(500).json({ error: 'Failed to insert cell: ' + error.message });
+  }
+});
+
+// Insert terminal cell endpoint
+app.post('/api/insert-terminal-cell', (req, res) => {
+  const { cellPath, cellWeight } = req.body;
+  
+  if (!cellPath) {
+    return res.status(400).json({ error: 'Missing cellPath' });
+  }
+  
+  // Security: only allow creating cells in content directory
+  if (!cellPath.startsWith('content/')) {
+    return res.status(403).json({ error: 'Invalid cell path' });
+  }
+  
+  try {
+    // Extract row directory from cell path
+    const rowDir = path.dirname(cellPath);
+    const rowFullPath = path.join(__dirname, rowDir);
+    
+    // Read all existing cells in the row with their weights
+    const cellDirs = fs.readdirSync(rowFullPath)
+      .filter(name => name.startsWith('cell') && fs.statSync(path.join(rowFullPath, name)).isDirectory());
+    
+    const cellsWithWeights = cellDirs.map(name => {
+      const cellIndexPath = path.join(rowFullPath, name, '_index.md');
+      if (fs.existsSync(cellIndexPath)) {
+        const content = fs.readFileSync(cellIndexPath, 'utf8');
+        const weightMatch = content.match(/weight:\s*(\d+)/);
+        const weight = weightMatch ? parseInt(weightMatch[1]) : 999;
+        return { name, weight };
+      }
+      return null;
+    }).filter(c => c !== null);
+    
+    // Determine the weight for the new cell (insert after current cell)
+    const currentWeight = cellWeight ? parseInt(cellWeight) : 0;
+    const newWeight = currentWeight + 1;
+    
+    // Calculate the position (column) of the new cell based on its weight
+    // Sort cells by weight to determine position
+    const sortedCells = cellsWithWeights.sort((a, b) => a.weight - b.weight);
+    const newCellPosition = sortedCells.filter(c => c.weight < newWeight).length + 1;
+    const cellTitle = numberToLetters(newCellPosition);
+    
+    // Extract row number from path (e.g., content/orgs/org1/prod1/sow1/xyv1/tab1/row1 -> 1)
+    const rowMatch = rowDir.match(/row(\d+)/);
+    const rowNumber = rowMatch ? rowMatch[1] : '1';
+    
+    // Get cells that need to be shifted (weight >= newWeight), sorted in REVERSE order
+    const cellsToShift = cellsWithWeights
+      .filter(cell => cell.weight >= newWeight)
+      .sort((a, b) => b.weight - a.weight); // Sort descending (highest weight first)
+    
+    // Shift cells in REVERSE order to avoid folder name conflicts
+    cellsToShift.forEach(cell => {
+      const oldPosition = sortedCells.filter(c => c.weight < cell.weight).length + 1;
+      const newPosition = oldPosition + 1;
+      const updatedWeight = cell.weight + 1;
+      
+      // Determine old and new folder names
+      const oldCellNum = cell.name.match(/cell(\d+)/)[1];
+      const newCellNum = newPosition;
+      const oldCellPath = path.join(rowFullPath, cell.name);
+      const newCellName = `cell${newCellNum}`;
+      const newCellPath = path.join(rowFullPath, newCellName);
+      
+      // Read and update content before renaming
+      const cellIndexPath = path.join(oldCellPath, '_index.md');
+      let content = fs.readFileSync(cellIndexPath, 'utf8');
+      
+      // Update weight
+      content = content.replace(/weight:\s*\d+/, `weight: ${updatedWeight}`);
+      
+      // Update title
+      const newTitle = numberToLetters(newPosition);
+      content = content.replace(/title:\s*.+/, `title: ${newTitle}`);
+      
+      // Update R<row>C<col> heading in content if it exists
+      content = content.replace(/##\s*R(\d+)C(\d+)/, (match, r, c) => {
+        return `## R${r}C${newPosition}`;
+      });
+      
+      // Write updated content
+      fs.writeFileSync(cellIndexPath, content, 'utf8');
+      
+      // Rename folder if needed
+      if (oldCellPath !== newCellPath) {
+        fs.renameSync(oldCellPath, newCellPath);
+      }
+    });
+    
+    // Create the new cell directory at the correct position
+    const newCellDir = `cell${newCellPosition}`;
+    const newCellPath = path.join(rowFullPath, newCellDir);
+    
+    if (!fs.existsSync(newCellPath)) {
+      fs.mkdirSync(newCellPath, { recursive: true });
+    }
+    
+    // Create the _index.md file with terminal layout and shortcode
+    const indexContent = `---
+title: ${cellTitle}
+weight: ${newWeight}
+type: terminal
+layout: terminal
+bg_color: "#2d3748"
+---
+
+## Termjs R${rowNumber}C${newCellPosition}
+
+{{< terminal >}}
+`;
+    
+    fs.writeFileSync(path.join(newCellPath, '_index.md'), indexContent, 'utf8');
+    
+    logAction('add', path.join(rowDir, newCellDir, '_index.md'));
+    
+    res.json({ 
+      success: true, 
+      message: 'Terminal cell inserted successfully',
+      cellDir: newCellDir,
+      cellPath: path.join(rowDir, newCellDir)
+    });
+  } catch (error) {
+    console.error('Error inserting terminal cell:', error);
+    res.status(500).json({ error: 'Failed to insert terminal cell: ' + error.message });
   }
 });
 
@@ -649,6 +787,112 @@ app.post('/api/delete-row', (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+// WebSocket handler for terminal connections
+wss.on('connection', (ws, req) => {
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  const termId = url.searchParams.get('termId') || `term-${++terminalId}`;
+  const cwdParam = url.searchParams.get('cwd') || 'content';
+  
+  // Convert relative path to absolute path
+  const cwd = path.join(__dirname, cwdParam);
+  
+  console.log(`Terminal connection: ${termId}, cwd: ${cwd}`);
+  
+  // Determine shell - use full path
+  let shell;
+  if (os.platform() === 'win32') {
+    shell = 'powershell.exe';
+  } else {
+    shell = process.env.SHELL || '/bin/zsh';
+    // Verify shell exists
+    if (!fs.existsSync(shell)) {
+      shell = '/bin/bash';
+    }
+  }
+  
+  console.log(`Using shell: ${shell}`);
+  
+  // Verify directory exists
+  if (!fs.existsSync(cwd)) {
+    console.error(`Directory does not exist: ${cwd}`);
+    ws.close(1011, 'Directory does not exist');
+    return;
+  }
+  
+  // Use user's home environment (including ~/.zshrc)
+  const env = { ...process.env };
+  
+  console.log(`Directory exists: ${fs.existsSync(cwd)}`);
+  console.log(`Directory stats:`, fs.statSync(cwd));
+  
+  try {
+    // Spawn terminal process - start in home directory to avoid cwd issues
+    // Then cd to the target directory
+    const ptyProcess = pty.spawn(shell, ['-l'], {
+      name: 'xterm-color',
+      cols: 80,
+      rows: 24,
+      cwd: process.env.HOME,
+      env: env
+    });
+    console.log(`Terminal spawned successfully for ${termId}`);
+    
+    // Change to the target directory after spawn
+    setTimeout(() => {
+      ptyProcess.write(`cd "${cwd}"\r`);
+    }, 100);
+    
+    // Store terminal session
+    terminals[termId] = ptyProcess;
+    
+    // Send data from terminal to client
+    ptyProcess.onData((data) => {
+      try {
+        ws.send(data);
+      } catch (e) {
+        // WebSocket closed
+      }
+    });
+    
+    // Receive data from client and write to terminal
+    ws.on('message', (msg) => {
+      ptyProcess.write(msg.toString());
+    });
+    
+    // Handle resize events
+    ws.on('message', (msg) => {
+      try {
+        const data = JSON.parse(msg);
+        if (data.type === 'resize') {
+          ptyProcess.resize(data.cols, data.rows);
+        }
+      } catch (e) {
+        // Not JSON, treat as terminal input
+        ptyProcess.write(msg.toString());
+      }
+    });
+    
+    // Clean up on disconnect
+    ws.on('close', () => {
+      console.log(`Terminal closed: ${termId}`);
+      ptyProcess.kill();
+      delete terminals[termId];
+    });
+    
+    ptyProcess.onExit(() => {
+      try {
+        ws.close();
+      } catch (e) {
+        // Already closed
+      }
+    });
+  } catch (error) {
+    console.error('Error spawning terminal:', error);
+    ws.close(1011, 'Failed to spawn terminal: ' + error.message);
+  }
+});
+
+server.listen(PORT, () => {
   console.log(`Editor API server running on http://localhost:${PORT}`);
+  console.log(`WebSocket terminal server running on ws://localhost:${PORT}`);
 });

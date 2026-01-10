@@ -1,0 +1,113 @@
+{{- $id := printf "terminal-%d" (now.Unix) -}}
+{{- $cwd := .Page.File.Dir -}}
+<div class="terminal-wrapper"
+  style="width: 100%; height: 300px; background-color: #000; border-radius: 4px; overflow: hidden; margin: 1rem 0;"
+  data-cwd="content/{{ $cwd }}">
+  <div id="{{ $id }}" style="width: 100%; height: 100%; padding: 0.5rem;"></div>
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.min.js"></script>
+
+<script>
+  (function () {
+    function initTerminal() {
+      if (!window.Terminal || !window.FitAddon) {
+        setTimeout(initTerminal, 100);
+        return;
+      }
+
+      const terminalEl = document.getElementById('{{ $id }}');
+      if (!terminalEl || terminalEl.dataset.initialized) return;
+
+      const term = new Terminal({
+        cursorBlink: true,
+        fontSize: 12,
+        fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+        theme: {
+          background: '#000000',
+          foreground: '#ffffff',
+          cursor: '#ffffff',
+          selection: '#ffffff40'
+        },
+        rows: 15
+      });
+
+      const fitAddon = new FitAddon.FitAddon();
+      term.loadAddon(fitAddon);
+
+      term.open(terminalEl);
+      fitAddon.fit();
+      terminalEl.dataset.initialized = 'true';
+
+      // Get current working directory from data attribute
+      const wrapper = terminalEl.parentElement;
+      const cwd = wrapper.dataset.cwd || '';
+
+      // Extract row directory path (go up one level from cell)
+      // Remove trailing slash and filter empty strings
+      const pathParts = cwd.replace(/\/$/, '').split('/').filter(p => p);
+      const rowPath = pathParts.slice(0, -1).join('/'); // Remove cell directory, keep row
+
+      // Connect to WebSocket terminal server
+      const termId = '{{ $id }}';
+      const wsUrl = `ws://localhost:3001?termId=${termId}&cwd=${encodeURIComponent(rowPath)}`;
+
+      console.log('CWD:', cwd);
+      console.log('Row path:', rowPath);
+
+      console.log('Terminal connecting to:', wsUrl);
+      term.writeln('Connecting to terminal...');
+
+      const socket = new WebSocket(wsUrl);
+
+      socket.onopen = () => {
+        console.log('WebSocket connected');
+        term.clear();
+        term.writeln('Terminal connected');
+
+        // Send data from terminal to WebSocket
+        term.onData(data => {
+          socket.send(data);
+        });
+
+        // Handle window resize
+        term.onResize(({ cols, rows }) => {
+          socket.send(JSON.stringify({ type: 'resize', cols, rows }));
+        });
+      };
+
+      // Receive data from WebSocket and write to terminal
+      socket.onmessage = (event) => {
+        term.write(event.data);
+      };
+
+      socket.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        term.writeln('\r\n\x1b[31mWebSocket error. Make sure editor-server.js is running.\x1b[0m');
+      };
+
+      socket.onclose = (event) => {
+        console.log('WebSocket closed:', event.code, event.reason);
+        term.writeln('\r\n\x1b[33mTerminal disconnected\x1b[0m');
+      };
+
+      const resizeObserver = new ResizeObserver(() => {
+        fitAddon.fit();
+      });
+      resizeObserver.observe(terminalEl.parentElement);
+
+      // Clean up on page unload
+      window.addEventListener('beforeunload', () => {
+        socket.close();
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initTerminal);
+    } else {
+      initTerminal();
+    }
+  })();
+</script>

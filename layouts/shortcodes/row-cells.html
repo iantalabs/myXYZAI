@@ -27,6 +27,10 @@ Usage in row/_index.md:
             <button class="delete-cell-btn hx:font-bold hx:text-xl hx:cursor-pointer hx:bg-transparent hx:border-none"
               style="color: #dc2626;" data-cell-path="content/{{ .File.Dir }}" data-cell-weight="{{ .Weight }}"
               title="Delete cell file - No undo available!">-</button>
+            <button
+              class="insert-terminal-cell-btn hx:text-blue-600 hx:hover:text-blue-700 hx:font-bold hx:text-xl hx:cursor-pointer hx:bg-transparent hx:border-none"
+              data-cell-path="content/{{ .File.Dir }}" data-cell-weight="{{ .Weight }}"
+              title="Add terminal cell">T</button>
           </div>
         </h3>
         <div class="hx:prose hx:prose-sm hx:dark:prose-invert hx:max-w-none hx:overflow-y-auto" contenteditable="true"

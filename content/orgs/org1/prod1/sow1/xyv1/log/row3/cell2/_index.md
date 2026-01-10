@@ -1,11 +1,11 @@
 ---
 title: B
 weight: 2
-type: cell
+type: terminal
+layout: terminal
+bg_color: "#2d3748"
 ---
 
-{{< cell >}}
+## Termjs R3C2
 
-## R3C2
-
-{{< /cell >}}
+{{< terminal >}}

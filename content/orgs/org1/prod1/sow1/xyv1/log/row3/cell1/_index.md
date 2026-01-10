@@ -8,4 +8,6 @@ type: cell
 
 ## R3C1
 
+new line
+
 {{< /cell >}}
