@@ -1,5 +1,5 @@
 ---
-title: XYv1
+title: SOW1 - XYv1
 weight: 1
 ---
 
