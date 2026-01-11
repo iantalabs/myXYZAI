@@ -29,15 +29,21 @@ Usage in tab/_index.md:
         <div class="hx:flex hx:gap-0 hx:overflow-x-auto hx:pb-4" style="flex: 1; min-height: 0;">
           {{- range .Sections }}
           {{- $bgColor := .Params.bg_color | default "transparent" -}}
+          {{- $isTerminal := eq .Params.type "terminal" -}}
+          {{- $titleColor := cond $isTerminal "#90ee90" "" -}}
+          {{- $addBtnColor := cond $isTerminal "#90ee90" "" -}}
           <div class="hx:shrink-0 hx:w-64 hx:border hx:border-gray-200 hx:dark:border-neutral-700 hx:rounded-sm hx:p-0"
             style="height: 100%; display: flex; flex-direction: column; background-color: {{ $bgColor }} !important;">
             <h3 class="hx:text-lg hx:font-semibold hx:mb-3 hx:flex hx:items-center hx:justify-between hx:px-2"
               style="flex-shrink: 0;">
-              <a href="{{ .RelPermalink }}" class="hx:text-blue-600 hx:dark:text-blue-400 hx:hover:underline">{{ .Title
+              <a href="{{ .RelPermalink }}"
+                class="{{ if not $isTerminal }}hx:text-blue-600 hx:dark:text-blue-400{{ end }} hx:hover:underline" {{ if
+                $isTerminal }}style="color: {{ $titleColor }};" {{ end }}>{{ .Title
                 }}</a>
               <div class="hx:flex hx:gap-1">
                 <button
-                  class="insert-cell-btn hx:ml-2 hx:text-green-600 hx:hover:text-green-700 hx:font-bold hx:text-xl hx:cursor-pointer hx:bg-transparent hx:border-none"
+                  class="insert-cell-btn hx:ml-2 hx:font-bold hx:text-xl hx:cursor-pointer hx:bg-transparent hx:border-none {{ if not $isTerminal }}hx:text-green-600 hx:hover:text-green-700{{ end }}"
+                  {{ if $isTerminal }}style="color: {{ $addBtnColor }};" {{ end }}
                   data-cell-path="content/{{ .File.Dir }}" data-cell-weight="{{ .Weight }}"
                   title="Insert cell to the right">+</button>
                 <button
@@ -45,9 +51,10 @@ Usage in tab/_index.md:
                   style="color: #dc2626;" data-cell-path="content/{{ .File.Dir }}" data-cell-weight="{{ .Weight }}"
                   title="Delete cell file - No undo available!">-</button>
                 <button
-                  class="insert-terminal-cell-btn hx:text-blue-600 hx:hover:text-blue-700 hx:font-bold hx:text-xl hx:cursor-pointer hx:bg-transparent hx:border-none"
+                  class="insert-terminal-cell-btn hx:font-bold hx:text-xl hx:cursor-pointer hx:bg-transparent hx:border-none {{ if not $isTerminal }}hx:text-blue-600 hx:hover:text-blue-700{{ end }}"
+                  {{ if $isTerminal }}style="color: {{ $addBtnColor }};" {{ end }}
                   data-cell-path="content/{{ .File.Dir }}" data-cell-weight="{{ .Weight }}"
-                  title="Add terminal cell">T</button>
+                  title="Add terminal cell">t</button>
               </div>
             </h3>
             <div class="hx:prose hx:prose-sm hx:dark:prose-invert hx:max-w-none hx:overflow-y-auto"

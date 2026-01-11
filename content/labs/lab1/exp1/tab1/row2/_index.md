@@ -1,5 +1,8 @@
 ---
 title: Row 2
 weight: 2
-type: row
+layout: row
+bg_color: '#88EEFF'
 ---
+
+{{< row-cells >}}

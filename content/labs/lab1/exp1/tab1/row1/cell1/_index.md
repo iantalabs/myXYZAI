@@ -7,7 +7,6 @@ type: cell
 {{< cell >}}
 
 ## R1C1
-
-test cell
+content
 
 {{< /cell >}}

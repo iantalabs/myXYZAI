@@ -368,7 +368,7 @@ layout: terminal
 bg_color: "#2d3748"
 ---
 
-## Termjs R${rowNumber}C${newCellPosition}
+<h2 style="color: #90ee90;">ttyd R${rowNumber}C${newCellPosition}</h2>
 
 {{< terminal >}}
 `;

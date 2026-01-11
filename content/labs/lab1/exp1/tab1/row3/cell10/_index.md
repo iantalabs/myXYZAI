@@ -1,18 +1,14 @@
 ---
 title: J
 weight: 10
-type: cell
-bg_color: '#FFAA88'
+cascade:
+  type: docs
 ---
 
 {{< cell >}}
 
 ## R3C10 Title
 
-- Todo: Add an image content for Cell 2 in Row 2.
-
-![an image from lab1](/lab1/imgs/screen-5486.png)
-
-tab view edit
+- Todo: Add an image content for Cell 10 in Row 3.
 
 {{< /cell >}}

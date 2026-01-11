@@ -1,12 +1,14 @@
 ---
 title: B
 weight: 2
-type: cell
+cascade:
+  type: docs
 ---
 
 {{< cell >}}
 
-## R2C2
-content
+## R2C2 Title
+
+- Todo: Add an image content for Cell 10 in Row 2.
 
 {{< /cell >}}

@@ -1,8 +1,7 @@
 ---
 title: L
 weight: 12
-cascade:
-  type: docs
+type: cell
 ---
 
 {{< cell >}}
