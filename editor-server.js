@@ -4,19 +4,9 @@ const bodyParser = require('body-parser');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
-const http = require('http');
-const WebSocket = require('ws');
-const pty = require('node-pty');
-const os = require('os');
 
 const app = express();
 const PORT = 3001;
-const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
-
-// Store active terminal sessions
-const terminals = {};
-let terminalId = 0;
 
 // Helper function for logging
 function logAction(action, filePath) {
@@ -787,112 +777,6 @@ app.post('/api/delete-row', (req, res) => {
   }
 });
 
-// WebSocket handler for terminal connections
-wss.on('connection', (ws, req) => {
-  const url = new URL(req.url, `http://${req.headers.host}`);
-  const termId = url.searchParams.get('termId') || `term-${++terminalId}`;
-  const cwdParam = url.searchParams.get('cwd') || 'content';
-  
-  // Convert relative path to absolute path
-  const cwd = path.join(__dirname, cwdParam);
-  
-  console.log(`Terminal connection: ${termId}, cwd: ${cwd}`);
-  
-  // Determine shell - use full path
-  let shell;
-  if (os.platform() === 'win32') {
-    shell = 'powershell.exe';
-  } else {
-    shell = process.env.SHELL || '/bin/zsh';
-    // Verify shell exists
-    if (!fs.existsSync(shell)) {
-      shell = '/bin/bash';
-    }
-  }
-  
-  console.log(`Using shell: ${shell}`);
-  
-  // Verify directory exists
-  if (!fs.existsSync(cwd)) {
-    console.error(`Directory does not exist: ${cwd}`);
-    ws.close(1011, 'Directory does not exist');
-    return;
-  }
-  
-  // Use user's home environment (including ~/.zshrc)
-  const env = { ...process.env };
-  
-  console.log(`Directory exists: ${fs.existsSync(cwd)}`);
-  console.log(`Directory stats:`, fs.statSync(cwd));
-  
-  try {
-    // Spawn terminal process - start in home directory to avoid cwd issues
-    // Then cd to the target directory
-    const ptyProcess = pty.spawn(shell, ['-l'], {
-      name: 'xterm-color',
-      cols: 80,
-      rows: 24,
-      cwd: process.env.HOME,
-      env: env
-    });
-    console.log(`Terminal spawned successfully for ${termId}`);
-    
-    // Change to the target directory after spawn
-    setTimeout(() => {
-      ptyProcess.write(`cd "${cwd}"\r`);
-    }, 100);
-    
-    // Store terminal session
-    terminals[termId] = ptyProcess;
-    
-    // Send data from terminal to client
-    ptyProcess.onData((data) => {
-      try {
-        ws.send(data);
-      } catch (e) {
-        // WebSocket closed
-      }
-    });
-    
-    // Receive data from client and write to terminal
-    ws.on('message', (msg) => {
-      ptyProcess.write(msg.toString());
-    });
-    
-    // Handle resize events
-    ws.on('message', (msg) => {
-      try {
-        const data = JSON.parse(msg);
-        if (data.type === 'resize') {
-          ptyProcess.resize(data.cols, data.rows);
-        }
-      } catch (e) {
-        // Not JSON, treat as terminal input
-        ptyProcess.write(msg.toString());
-      }
-    });
-    
-    // Clean up on disconnect
-    ws.on('close', () => {
-      console.log(`Terminal closed: ${termId}`);
-      ptyProcess.kill();
-      delete terminals[termId];
-    });
-    
-    ptyProcess.onExit(() => {
-      try {
-        ws.close();
-      } catch (e) {
-        // Already closed
-      }
-    });
-  } catch (error) {
-    console.error('Error spawning terminal:', error);
-    ws.close(1011, 'Failed to spawn terminal: ' + error.message);
-  }
-});
-
-server.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`Editor API server running on http://localhost:${PORT}`);
-  console.log(`WebSocket terminal server running on ws://localhost:${PORT}`);
 });
