@@ -672,6 +672,180 @@
     //   }
     // });
 
+    // Screenshot functionality for XYV views
+    async function captureXYVScreenshot(xyvName) {
+      // Wait for html2canvas to load
+      let attempts = 0;
+      while (!window.html2canvas && attempts < 50) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+      }
+      
+      if (!window.html2canvas) {
+        console.error('html2canvas failed to load');
+        return;
+      }
+
+      // Capture the XYV content area (3 columns with tabs/rows/cells)
+      const xyvContent = document.querySelector('.hextra-container') || 
+                         document.querySelector('article') || 
+                         document.querySelector('main') || 
+                         document.body;
+      
+      // Find all row containers and store bg colors
+      const rowContainers = xyvContent.querySelectorAll('.hx\\:space-y-8 > div');
+      const rowBgColors = [];
+      
+      // Collect bg colors but use visible width only
+      rowContainers.forEach(row => {
+        // Store the row's background color
+        const bgColor = window.getComputedStyle(row).backgroundColor;
+        rowBgColors.push(bgColor);
+      });
+      
+      // Use the visible width of the viewport instead of scrollable width
+      const visibleWidth = xyvContent.clientWidth || window.innerWidth;
+      
+      try {
+        const canvas = await html2canvas(xyvContent, {
+          backgroundColor: '#ffffff',
+          scale: 2,
+          logging: false,
+          useCORS: true,
+          allowTaint: true,
+          foreignObjectRendering: true,
+          x: -275,
+          y: -100,
+          scrollX: 0,
+          scrollY: 0,
+          width: visibleWidth,
+          windowWidth: visibleWidth,
+          windowHeight: xyvContent.scrollHeight,
+          ignoreElements: (element) => {
+            return element.classList && (element.classList.contains('screenshot-btn') || element.classList.contains('xyv-screenshot-btn'));
+          },
+          onclone: (clonedDoc) => {
+            // Keep overflow hidden to respect visible width
+            const allElements = clonedDoc.querySelectorAll('*');
+            allElements.forEach(el => {
+              if (el.style) {
+                // Keep horizontal overflow hidden to capture only visible width
+                el.style.overflowX = 'hidden';
+                el.style.overflow = 'hidden';
+              }
+            });
+            
+            // Keep cell content from overflowing vertically
+            const cellContentDivs = clonedDoc.querySelectorAll('.hx\\:prose');
+            cellContentDivs.forEach(div => {
+              div.style.overflowY = 'hidden';
+              div.style.maxHeight = 'calc(25vh - 4rem)'; // Row height minus headers/padding
+            });
+            
+            // Re-apply row background colors to the visible width
+            const clonedRows = clonedDoc.querySelectorAll('.hx\\:space-y-8 > div');
+            clonedRows.forEach((row, index) => {
+              if (rowBgColors[index] && rowBgColors[index] !== 'rgba(0, 0, 0, 0)' && rowBgColors[index] !== 'transparent') {
+                // Apply to row container with visible width
+                row.style.backgroundColor = rowBgColors[index];
+                row.style.setProperty('background-color', rowBgColors[index], 'important');
+                row.style.width = visibleWidth + 'px';
+                row.style.minWidth = visibleWidth + 'px';
+                
+                // Also ensure the cell container and all children have the same bg color
+                const cellContainer = row.querySelector('.hx\\:flex.hx\\:gap-0');
+                if (cellContainer) {
+                  cellContainer.style.backgroundColor = rowBgColors[index];
+                  cellContainer.style.setProperty('background-color', rowBgColors[index], 'important');
+                  cellContainer.style.width = visibleWidth + 'px';
+                  cellContainer.style.minWidth = visibleWidth + 'px';
+                  
+                  // Apply to all cell divs within the container
+                  const cells = cellContainer.querySelectorAll('.hx\\:shrink-0');
+                  cells.forEach(cell => {
+                    // Only apply if cell doesn't have its own bg color
+                    const cellBg = window.getComputedStyle(cell).backgroundColor;
+                    if (cellBg === 'rgba(0, 0, 0, 0)' || cellBg === 'transparent') {
+                      cell.style.backgroundColor = rowBgColors[index];
+                      cell.style.setProperty('background-color', rowBgColors[index], 'important');
+                    }
+                  });
+                }
+              }
+            });
+            
+            // Disable ALL stylesheets to avoid oklch parsing
+            const linkElements = clonedDoc.querySelectorAll('link[rel="stylesheet"]');
+            linkElements.forEach(link => link.disabled = true);
+            
+            const styleElements = clonedDoc.querySelectorAll('style');
+            styleElements.forEach(style => style.remove());
+            
+            // Create a simple replacement stylesheet with basic styles
+            const newStyle = clonedDoc.createElement('style');
+            newStyle.textContent = `
+              * { 
+                box-sizing: border-box;
+                overflow: visible !important;
+              }
+              body {
+                font-family: system-ui, -apple-system, sans-serif;
+                color: rgb(0, 0, 0);
+                background: rgb(255, 255, 255);
+              }
+              h1, h2, h3, h4, h5, h6 {
+                color: rgb(0, 0, 0);
+                font-weight: 600;
+              }
+              [contenteditable] {
+                border: 1px solid rgb(200, 200, 200);
+                padding: 1rem;
+                background: rgb(255, 255, 255);
+              }
+              .row-footer, .tab-footer {
+                border-top: 1px solid rgb(200, 200, 200);
+                padding: 0.5rem;
+                background: rgb(249, 250, 251);
+              }
+            `;
+            clonedDoc.head.appendChild(newStyle);
+          }
+        });
+        
+        // Convert canvas to blob
+        canvas.toBlob(async (blob) => {
+          const formData = new FormData();
+          formData.append('image', blob, `${xyvName}.png`);
+          
+          // Extract the XYV path from the current URL
+          const pathParts = window.location.pathname.split('/').filter(p => p);
+          const xyvIndex = pathParts.findIndex(p => p.match(/^xyv\d+$/));
+          if (xyvIndex >= 0) {
+            const xyvPath = pathParts.slice(0, xyvIndex + 1).join('/');
+            formData.append('path', `content/${xyvPath}/images`);
+          } else {
+            formData.append('path', 'content/orgs/org1/prod1/sow1/xyv1/images');
+          }
+          
+          try {
+            const response = await fetch(`${API_URL}/api/save-screenshot`, {
+              method: 'POST',
+              body: formData
+            });
+            
+            const result = await response.json();
+            console.log(`Screenshot saved: ${result.message}`);
+          } catch (error) {
+            console.error('Error saving screenshot:', error);
+            alert('Error saving screenshot: ' + error.message);
+          }
+        }, 'image/png');
+      } catch (error) {
+        console.error('Error capturing screenshot:', error);
+        alert('Error capturing screenshot: ' + error.message);
+      }
+    }
+
     // Screenshot functionality for tab views
     async function captureTabScreenshot(tabName) {
       // Wait for html2canvas to load
@@ -883,6 +1057,52 @@
         
         document.body.appendChild(screenshotBtn);
       }
+
+    // Add screenshot button for XYV views
+    const xyvMatch = window.location.pathname.match(/\/(xyv\d+)\/?$/);
+    if (xyvMatch) {
+      const xyvName = xyvMatch[1];
+      
+      // Create XYV screenshot button
+      const xyvScreenshotBtn = document.createElement('button');
+      xyvScreenshotBtn.className = 'xyv-screenshot-btn';
+      xyvScreenshotBtn.innerHTML = '📸 XYV';
+      xyvScreenshotBtn.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        padding: 10px 16px;
+        background: #10b981;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        z-index: 1000;
+        transition: background 0.2s;
+      `;
+      
+      xyvScreenshotBtn.addEventListener('mouseover', function() {
+        this.style.background = '#059669';
+      });
+      
+      xyvScreenshotBtn.addEventListener('mouseout', function() {
+        this.style.background = '#10b981';
+      });
+      
+      xyvScreenshotBtn.addEventListener('click', function() {
+        this.disabled = true;
+        this.innerHTML = '⏳ /images';
+        captureXYVScreenshot(xyvName).finally(() => {
+          this.disabled = false;
+          this.innerHTML = '📸 XYV';
+        });
+      });
+      
+      document.body.appendChild(xyvScreenshotBtn);
+    }
 
   });
 
