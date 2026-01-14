@@ -76,55 +76,103 @@ h2.hx\:text-2xl.hx\:font-bold.hx\:mb-4 {
   position: relative;
 }
 
-.xyv-x-container::before {
-  content: 'X BUY\AX OPS\AX PAY';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 100px;
-  font-weight: bold;
-  color: #d3d3d3;
-  opacity: 0.3;
-  z-index: 0;
-  pointer-events: none;
-  white-space: pre;
-}
-
 .xyv-y-container {
   position: relative;
-}
-
-.xyv-y-container::before {
-  content: 'Y SELL\AY OPS\AY PAY';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 100px;
-  font-weight: bold;
-  color: #d3d3d3;
-  opacity: 0.3;
-  z-index: 0;
-  pointer-events: none;
-  white-space: pre;
 }
 
 .xyv-log-container {
   position: relative;
 }
 
-.xyv-log-container::before {
-  content: 'Z LOG\AZ OPS\AZ PAY';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 100px;
-  font-weight: bold;
-  color: #d3d3d3;
-  opacity: 0.3;
-  z-index: 0;
-  pointer-events: none;
-  white-space: pre;
+/* XYV background text - only visible on XXL screens */
+@media (min-width: 3500px) {
+  .xyv-x-container::before {
+    content: 'PROJECT X\Aprompts\AX BUY\AX OPS\AX PAY';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 100px;
+    font-weight: bold;
+    color: #d3d3d3;
+    opacity: 0.3;
+    z-index: 0;
+    pointer-events: none;
+    white-space: pre;
+  }
+
+  .xyv-x-container::after {
+    content: 'Project X SellOpsPay flow';
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 50px;
+    font-weight: bold;
+    color: #d3d3d3;
+    opacity: 0.3;
+    z-index: 0;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .xyv-y-container::before {
+    content: 'AGENT Y\Aprompts\AY SELL\AY OPS\AY PAY';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 100px;
+    font-weight: bold;
+    color: #d3d3d3;
+    opacity: 0.3;
+    z-index: 0;
+    pointer-events: none;
+    white-space: pre;
+  }
+
+  .xyv-y-container::after {
+    content: 'Agent Y SellOpsPay flow';
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 24px;
+    font-weight: bold;
+    color: #d3d3d3;
+    opacity: 0.3;
+    z-index: 0;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .xyv-log-container::before {
+    content: 'SOW Z\Aresults\AZ LOG\AZ OPS\AZ PAY';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 100px;
+    font-weight: bold;
+    color: #d3d3d3;
+    opacity: 0.3;
+    z-index: 0;
+    pointer-events: none;
+    white-space: pre;
+  }
+
+  .xyv-log-container::after {
+    content: 'SOW Z SellOpsPay Log';
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 24px;
+    font-weight: bold;
+    color: #d3d3d3;
+    opacity: 0.3;
+    z-index: 0;
+    pointer-events: none;
+    white-space: nowrap;
+  }
 }
