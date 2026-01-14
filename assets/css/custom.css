@@ -70,3 +70,61 @@ h2.hx\:text-2xl.hx\:font-bold.hx\:mb-4 {
   background-color: var(--cell-bg-color) !important;
   background: var(--cell-bg-color) !important;
 }
+
+/* XYV container background text */
+.xyv-x-container {
+  position: relative;
+}
+
+.xyv-x-container::before {
+  content: 'X BUY\AX OPS\AX PAY';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 100px;
+  font-weight: bold;
+  color: #d3d3d3;
+  opacity: 0.3;
+  z-index: 0;
+  pointer-events: none;
+  white-space: pre;
+}
+
+.xyv-y-container {
+  position: relative;
+}
+
+.xyv-y-container::before {
+  content: 'Y SELL\AY OPS\AY PAY';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 100px;
+  font-weight: bold;
+  color: #d3d3d3;
+  opacity: 0.3;
+  z-index: 0;
+  pointer-events: none;
+  white-space: pre;
+}
+
+.xyv-log-container {
+  position: relative;
+}
+
+.xyv-log-container::before {
+  content: 'Z LOG\AZ OPS\AZ PAY';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 100px;
+  font-weight: bold;
+  color: #d3d3d3;
+  opacity: 0.3;
+  z-index: 0;
+  pointer-events: none;
+  white-space: pre;
+}
