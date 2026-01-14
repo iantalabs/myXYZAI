@@ -117,7 +117,7 @@ h2.hx\:text-2xl.hx\:font-bold.hx\:mb-4 {
   }
 
   .xyv-y-container::before {
-    content: 'Y SELL Prompts\A k - Market\A l - Rates\A m - Docs\A n - Book\A X OPS Prompts\A o - Input\A p - Steps\A q - Output\A r - Test\A X PAY Prompts\A s - Pay';
+    content: 'Y SELL Prompts\A k - Market\A l - Rates\A m - Docs\A n - Book\A Y OPS Prompts\A o - Input\A p - Steps\A q - Output\A r - Test\A Y PAY Prompts\A s - Pay';
     position: absolute;
     top: 50%;
     left: 50%;
@@ -147,7 +147,7 @@ h2.hx\:text-2xl.hx\:font-bold.hx\:mb-4 {
   }
 
   .xyv-log-container::before {
-    content: 'Z SOW Prompts\A a-k - Market ✓\A b-l - Rates ✓\A c-m - Docs ✓\A d-n - Book ✓\A Z OPS Prompts\A e-o - Input ✓\A f-p - Steps ✓\A g-q - Output ✓\A h-r - Test ✓\A X PAY Prompts\A i-s - Pay ✓';
+    content: 'Z SOW Prompts\A a-k - Market ✓\A b-l - Rates ✓\A c-m - Docs ✓\A d-n - Book ✓\A Z OPS Prompts\A e-o - Input ✓\A f-p - Steps ✓\A g-q - Output ✓\A h-r - Test ✓\A Z PAY Prompts\A i-s - Pay ✓';
     position: absolute;
     top: 50%;
     left: 50%;
