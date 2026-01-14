@@ -87,12 +87,12 @@ h2.hx\:text-2xl.hx\:font-bold.hx\:mb-4 {
 /* XYV background text - only visible on XXL screens */
 @media (min-width: 3500px) {
   .xyv-x-container::before {
-    content: 'PROJECT X\Aprompts\AX BUY\AX OPS\AX PAY';
+    content: 'X BUY Prompts\A a - Market\A b - Rates\A c - Docs\A d - Book\A X OPS Prompts\A e - Input\A f - Steps\A g - Output\A h - Test\A X PAY Prompts\A i - Pay';
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 100px;
+    font-size: 90px;
     font-weight: bold;
     color: #d3d3d3;
     opacity: 0.3;
@@ -102,7 +102,7 @@ h2.hx\:text-2xl.hx\:font-bold.hx\:mb-4 {
   }
 
   .xyv-x-container::after {
-    content: 'Project X SellOpsPay flow';
+    content: 'PROJECT X SellOpsPay a-i Prompts';
     position: absolute;
     top: 10px;
     left: 50%;
@@ -117,12 +117,12 @@ h2.hx\:text-2xl.hx\:font-bold.hx\:mb-4 {
   }
 
   .xyv-y-container::before {
-    content: 'AGENT Y\Aprompts\AY SELL\AY OPS\AY PAY';
+    content: 'Y SELL Prompts\A k - Market\A l - Rates\A m - Docs\A n - Book\A X OPS Prompts\A o - Input\A p - Steps\A q - Output\A r - Test\A X PAY Prompts\A s - Pay';
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 100px;
+    font-size: 90px;
     font-weight: bold;
     color: #d3d3d3;
     opacity: 0.3;
@@ -132,12 +132,12 @@ h2.hx\:text-2xl.hx\:font-bold.hx\:mb-4 {
   }
 
   .xyv-y-container::after {
-    content: 'Agent Y SellOpsPay flow';
+    content: 'AI AGENT Y SellOpsPay k-s Prompts';
     position: absolute;
     top: 10px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 24px;
+    font-size: 50px;
     font-weight: bold;
     color: #d3d3d3;
     opacity: 0.3;
@@ -147,12 +147,12 @@ h2.hx\:text-2xl.hx\:font-bold.hx\:mb-4 {
   }
 
   .xyv-log-container::before {
-    content: 'SOW Z\Aresults\AZ LOG\AZ OPS\AZ PAY';
+    content: 'Z SOW Prompts\A a-k - Market ✓\A b-l - Rates ✓\A c-m - Docs ✓\A d-n - Book ✓\A Z OPS Prompts\A e-o - Input ✓\A f-p - Steps ✓\A g-q - Output ✓\A h-r - Test ✓\A X PAY Prompts\A i-s - Pay ✓';
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 100px;
+    font-size: 90px;
     font-weight: bold;
     color: #d3d3d3;
     opacity: 0.3;
@@ -162,12 +162,12 @@ h2.hx\:text-2xl.hx\:font-bold.hx\:mb-4 {
   }
 
   .xyv-log-container::after {
-    content: 'SOW Z SellOpsPay Log';
+    content: 'SOW Z SellOpsPay a-z Results';
     position: absolute;
     top: 10px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 24px;
+    font-size: 50px;
     font-weight: bold;
     color: #d3d3d3;
     opacity: 0.3;
