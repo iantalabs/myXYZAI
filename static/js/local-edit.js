@@ -1201,7 +1201,7 @@
       
       document.body.appendChild(xyvScreenshotBtn);
       
-      // Create SellOpsPay tx loop toggle button
+      // Create SellOpsPay tx loop toggle button - only visible on XXL screens (3700px+)
       const txLoopBtn = document.createElement('button');
       txLoopBtn.className = 'xyv-txloop-btn';
       txLoopBtn.innerHTML = 'SellOpsPay tx loop';
@@ -1220,7 +1220,16 @@
         box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         z-index: 1000;
         transition: background 0.2s;
+        display: none;
       `;
+      
+      // Show button only on XXL screens (3700px+)
+      const xxlMediaQuery = window.matchMedia('(min-width: 3700px)');
+      const updateButtonVisibility = () => {
+        txLoopBtn.style.display = xxlMediaQuery.matches ? 'block' : 'none';
+      };
+      updateButtonVisibility();
+      xxlMediaQuery.addListener(updateButtonVisibility);
       
       let txLoopVisible = false;
       
