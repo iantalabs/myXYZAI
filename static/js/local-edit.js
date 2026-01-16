@@ -1200,6 +1200,123 @@
       });
       
       document.body.appendChild(xyvScreenshotBtn);
+      
+      // Create SellOpsPay tx loop toggle button
+      const txLoopBtn = document.createElement('button');
+      txLoopBtn.className = 'xyv-txloop-btn';
+      txLoopBtn.innerHTML = 'SellOpsPay tx loop';
+      txLoopBtn.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 130px;
+        padding: 10px 16px;
+        background: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        z-index: 1000;
+        transition: background 0.2s;
+      `;
+      
+      let txLoopVisible = false;
+      
+      txLoopBtn.addEventListener('mouseover', function() {
+        this.style.background = '#2563eb';
+      });
+      
+      txLoopBtn.addEventListener('mouseout', function() {
+        this.style.background = '#3b82f6';
+      });
+      
+      txLoopBtn.addEventListener('click', function() {
+        txLoopVisible = !txLoopVisible;
+        
+        if (txLoopVisible) {
+          // Create actual DOM elements instead of pseudo-elements
+          const containers = [
+            {
+              selector: '.xyv-x-container',
+              beforeText: 'X BUY Prompts\na - Market\nb - Rates\nc - Docs\nd - Book\n\n\nX OPS Prompts\ne - Input\nf - Steps\ng - Output\nh - Test\n\n\nX PAY Prompts\ni - Pay',
+              afterText: 'PROJECT X SOP a-i Prompts',
+              color: '#bb2c29'
+            },
+            {
+              selector: '.xyv-y-container',
+              beforeText: 'Y SELL Prompts\nk - Market\nl - Rates\nm - Docs\nn - Book\n\n\nY OPS Prompts\no - Input\np - Steps\nq - Output\nr - Test\n\n\nY PAY Prompts\ns - Pay',
+              afterText: 'AI AGENT Y SOP k-s Prompts',
+              color: '#e99e2f'
+            },
+            {
+              selector: '.xyv-log-container',
+              beforeText: 'Z SOW Prompts\na-k - Market ✓\nb-l - Rates ✓\nc-m - Docs ✓\nd-n - Book ✓\n\n\nZ OPS Prompts\ne-o - Input ✓\nf-p - Steps ✓\ng-q - Output ✓\nh-r - Test ✓\n\n\nZ PAY Prompts\ni-s - Pay ✓',
+              afterText: 'SOW Z SOP a-z Results',
+              color: '#256bac'
+            }
+          ];
+          
+          containers.forEach(config => {
+            const container = document.querySelector(config.selector);
+            if (!container) return;
+            
+            // Create before element
+            const beforeDiv = document.createElement('div');
+            beforeDiv.className = 'xyv-txloop-before';
+            beforeDiv.contentEditable = 'true';
+            beforeDiv.textContent = config.beforeText;
+            beforeDiv.style.cssText = `
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              font-size: 70px;
+              font-weight: bold;
+              color: ${config.color};
+              opacity: 0.7;
+              z-index: 10;
+              pointer-events: auto;
+              white-space: pre;
+              outline: none;
+            `;
+            
+            // Create after element
+            const afterDiv = document.createElement('div');
+            afterDiv.className = 'xyv-txloop-after';
+            afterDiv.contentEditable = 'true';
+            afterDiv.textContent = config.afterText;
+            afterDiv.style.cssText = `
+              position: absolute;
+              top: 10px;
+              left: 50%;
+              transform: translateX(-50%);
+              font-size: 70px;
+              font-weight: bold;
+              color: ${config.color};
+              opacity: 0.7;
+              z-index: 10;
+              pointer-events: auto;
+              white-space: nowrap;
+              outline: none;
+            `;
+            
+            container.appendChild(beforeDiv);
+            container.appendChild(afterDiv);
+          });
+          
+          this.style.background = '#059669';
+          this.innerHTML = '✓ tx loop ON';
+        } else {
+          // Remove the created elements
+          document.querySelectorAll('.xyv-txloop-before, .xyv-txloop-after').forEach(el => el.remove());
+          this.style.background = '#3b82f6';
+          this.innerHTML = 'SellOpsPay tx loop';
+        }
+      });
+      
+      document.body.appendChild(txLoopBtn);
     }
 
   });

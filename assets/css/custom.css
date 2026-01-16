@@ -85,9 +85,10 @@ h2.hx\:text-2xl.hx\:font-bold.hx\:mb-4 {
 }
 
 /* XYV background text - only visible on XXL screens */
+/* Commented out - now using editable DOM elements via JavaScript toggle button
 @media (min-width: 3700px) {
   .xyv-x-container::before {
-    content: 'X BUY Prompts\A a - Market\A b - Rates\A c - Docs\A d - Book\A\A X OPS Prompts\A e - Input\A f - Steps\A g - Output\A h - Test\A\A X PAY Prompts\A i - Pay';
+    content: 'X BUY Prompts\A a - Market\A b - Rates\A c - Docs\A d - Book\A\A\A X OPS Prompts\A e - Input\A f - Steps\A g - Output\A h - Test\A\A\A X PAY Prompts\A i - Pay';
     position: absolute;
     top: 50%;
     left: 50%;
@@ -117,7 +118,7 @@ h2.hx\:text-2xl.hx\:font-bold.hx\:mb-4 {
   }
 
   .xyv-y-container::before {
-    content: 'Y SELL Prompts\A k - Market\A l - Rates\A m - Docs\A n - Book\A\A Y OPS Prompts\A o - Input\A p - Steps\A q - Output\A r - Test\A\A Y PAY Prompts\A s - Pay';
+    content: 'Y SELL Prompts\A k - Market\A l - Rates\A m - Docs\A n - Book\A\A\A Y OPS Prompts\A o - Input\A p - Steps\A q - Output\A r - Test\A\A\A Y PAY Prompts\A s - Pay';
     position: absolute;
     top: 50%;
     left: 50%;
@@ -147,7 +148,7 @@ h2.hx\:text-2xl.hx\:font-bold.hx\:mb-4 {
   }
 
   .xyv-log-container::before {
-    content: 'Z SOW Prompts\A a-k - Market ✓\A b-l - Rates ✓\A c-m - Docs ✓\A d-n - Book ✓\A\A Z OPS Prompts\A e-o - Input ✓\A f-p - Steps ✓\A g-q - Output ✓\A h-r - Test ✓\A\A Z PAY Prompts\A i-s - Pay ✓';
+    content: 'Z SOW Prompts\A a-k - Market ✓\A b-l - Rates ✓\A c-m - Docs ✓\A d-n - Book ✓\A\A\A Z OPS Prompts\A e-o - Input ✓\A f-p - Steps ✓\A g-q - Output ✓\A h-r - Test ✓\A\A\A Z PAY Prompts\A i-s - Pay ✓';
     position: absolute;
     top: 50%;
     left: 50%;
@@ -176,3 +177,4 @@ h2.hx\:text-2xl.hx\:font-bold.hx\:mb-4 {
     white-space: nowrap;
   }
 }
+*/
