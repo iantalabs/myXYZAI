@@ -1,3 +1,14 @@
+<!-- html2canvas for screenshots - force global export by hiding AMD -->
+<script>
+  // Temporarily hide AMD define to force html2canvas to use global export
+  var _define = window.define;
+  var _require = window.require;
+  window.define = undefined;
+  window.require = undefined;
+</script>
+<script src="/js/html2canvas.min.js"
+  onload="console.log('html2canvas.min.js loaded, window.html2canvas:', !!window.html2canvas); window.define = _define; window.require = _require;"></script>
+
 <!-- Monaco Editor -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/editor/editor.main.css">
 <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/loader.js"></script>
@@ -13,4 +24,4 @@
 
 <!-- Local scripts -->
 <script src="/js/code-editor.js"></script>
-<script src="/js/local-edit.js"></script>
+<script src="/js/local-edit.js" onload="console.log('local-edit.js loaded')"></script>

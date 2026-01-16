@@ -7,13 +7,6 @@
 
   const API_URL = 'http://localhost:3001';
 
-  // Load html2canvas dynamically
-  if (!window.html2canvas) {
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
-    document.head.appendChild(script);
-  }
-
   // Helper to convert oklch to rgb (simplified approximation)
   function oklchToRgb(oklchStr) {
     // Extract values from oklch string like "oklch(0.5 0.1 180)"
@@ -772,6 +765,9 @@
 
     // Screenshot functionality for XYV views
     async function captureXYVScreenshot(xyvName) {
+      console.log('captureXYVScreenshot called, checking for html2canvas...');
+      console.log('window.html2canvas exists:', !!window.html2canvas);
+      
       // Wait for html2canvas to load
       let attempts = 0;
       while (!window.html2canvas && attempts < 50) {
@@ -779,8 +775,12 @@
         attempts++;
       }
       
+      console.log('After waiting, window.html2canvas exists:', !!window.html2canvas);
+      console.log('Attempts:', attempts);
+      
       if (!window.html2canvas) {
-        console.error('html2canvas failed to load');
+        console.error('html2canvas failed to load after', attempts * 100, 'ms');
+        alert('html2canvas library failed to load. Please check the browser console and ensure Hugo server is running.');
         return;
       }
 
