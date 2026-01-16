@@ -72,6 +72,10 @@
                         style="color: #dc2626;" data-cell-path="content/{{ .File.Dir }}"
                         data-cell-weight="{{ .Weight }}" title="Delete cell file - No undo available!">-</button>
                       <button
+                        class="insert-code-cell-btn hx:font-bold hx:text-xl hx:text-green-600 hx:hover:text-green-700 hx:cursor-pointer hx:bg-transparent hx:border-none"
+                        data-cell-path="content/{{ .File.Dir }}" data-cell-weight="{{ .Weight }}"
+                        title="Add code cell">c</button>
+                      <button
                         class="insert-terminal-cell-btn hx:font-bold hx:text-xl {{ if not $isTerminal }}hx:text-blue-600 hx:hover:text-blue-700{{ end }} hx:cursor-pointer hx:bg-transparent hx:border-none"
                         {{ if $isTerminal }}style="color: {{ $addBtnColor }};" {{ end }}
                         data-cell-path="content/{{ .File.Dir }}" data-cell-weight="{{ .Weight }}"
@@ -145,6 +149,10 @@
                         style="color: #dc2626;" data-cell-path="content/{{ .File.Dir }}"
                         data-cell-weight="{{ .Weight }}" title="Delete cell file - No undo available!">-</button>
                       <button
+                        class="insert-code-cell-btn hx:font-bold hx:text-xl hx:text-green-600 hx:hover:text-green-700 hx:cursor-pointer hx:bg-transparent hx:border-none"
+                        data-cell-path="content/{{ .File.Dir }}" data-cell-weight="{{ .Weight }}"
+                        title="Add code cell">c</button>
+                      <button
                         class="insert-terminal-cell-btn hx:font-bold hx:text-xl {{ if not $isTerminal }}hx:text-blue-600 hx:hover:text-blue-700{{ end }} hx:cursor-pointer hx:bg-transparent hx:border-none"
                         {{ if $isTerminal }}style="color: {{ $addBtnColor }};" {{ end }}
                         data-cell-path="content/{{ .File.Dir }}" data-cell-weight="{{ .Weight }}"
@@ -217,6 +225,10 @@
                         class="delete-cell-btn hx:font-bold hx:text-xl hx:cursor-pointer hx:bg-transparent hx:border-none"
                         style="color: #dc2626;" data-cell-path="content/{{ .File.Dir }}"
                         data-cell-weight="{{ .Weight }}" title="Delete cell file - No undo available!">-</button>
+                      <button
+                        class="insert-code-cell-btn hx:font-bold hx:text-xl hx:text-green-600 hx:hover:text-green-700 hx:cursor-pointer hx:bg-transparent hx:border-none"
+                        data-cell-path="content/{{ .File.Dir }}" data-cell-weight="{{ .Weight }}"
+                        title="Add code cell">c</button>
                       <button
                         class="insert-terminal-cell-btn hx:font-bold hx:text-xl {{ if not $isTerminal }}hx:text-blue-600 hx:hover:text-blue-700{{ end }} hx:cursor-pointer hx:bg-transparent hx:border-none"
                         {{ if $isTerminal }}style="color: {{ $addBtnColor }};" {{ end }}

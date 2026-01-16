@@ -1,0 +1,132 @@
+{{- $id := printf "code-cell-%d" (now.UnixMilli) -}}
+{{- $code := .Inner | default "# Enter your Python code here\nprint('Hello, World!')" -}}
+{{- $cellPath := .Page.File.Dir -}}
+
+<div class="code-cell-container" data-cell-id="{{ $id }}" data-cell-path="content/{{ $cellPath }}_index.md">
+  <div class="code-cell-toolbar">
+    <button class="run-code-btn" title="Run code (Shift+Enter)">
+      <span class="run-icon">▶</span> Run
+    </button>
+    <button class="save-code-btn" title="Save code (Ctrl+S)" style="display: none;">
+      <span class="save-icon">💾</span> Save
+    </button>
+    <span class="code-status"></span>
+  </div>
+  <div class="monaco-editor-wrapper" id="{{ $id }}"
+    style="height: 300px; border: 1px solid #4a5568; border-radius: 4px;">
+    <pre style="display: none;">{{ $code }}</pre>
+  </div>
+  <div class="code-output-wrapper">
+    <div class="output-header">Output:</div>
+    <div class="code-output" id="{{ $id }}-output"></div>
+  </div>
+</div>
+
+<style>
+  .code-cell-container {
+    margin: 1rem 0;
+    background: #2d3748;
+    border-radius: 6px;
+    padding: 0.5rem;
+  }
+
+  .code-cell-toolbar {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    padding: 0.5rem;
+    background: #1a202c;
+    border-radius: 4px 4px 0 0;
+  }
+
+  .run-code-btn,
+  .save-code-btn {
+    background: #48bb78;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: background 0.2s;
+  }
+
+  .run-code-btn:hover {
+    background: #38a169;
+  }
+
+  .run-code-btn:disabled {
+    background: #4a5568;
+    cursor: not-allowed;
+  }
+
+  .save-code-btn {
+    background: #3182ce;
+  }
+
+  .save-code-btn:hover {
+    background: #2c5282;
+  }
+
+  .run-icon,
+  .save-icon {
+    font-size: 12px;
+  }
+
+  .code-status {
+    margin-left: auto;
+    font-size: 13px;
+    color: #a0aec0;
+  }
+
+  .monaco-editor-wrapper {
+    background: #1e1e1e;
+    margin-top: 0.5rem;
+  }
+
+  .code-output-wrapper {
+    margin-top: 0.5rem;
+    background: #1a202c;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .output-header {
+    padding: 0.5rem 1rem;
+    background: #2d3748;
+    color: #a0aec0;
+    font-weight: 500;
+    font-size: 13px;
+    border-bottom: 1px solid #4a5568;
+  }
+
+  .code-output {
+    padding: 1rem;
+    min-height: 4rem;
+    max-height: 300px;
+    overflow-y: auto;
+    color: #e2e8f0;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+  }
+
+  .code-output:empty::before {
+    content: 'Output will appear here...';
+    color: #718096;
+    font-style: italic;
+  }
+
+  .code-output.error {
+    color: #fc8181;
+  }
+
+  .code-output.success {
+    color: #9ae6b4;
+  }
+</style>

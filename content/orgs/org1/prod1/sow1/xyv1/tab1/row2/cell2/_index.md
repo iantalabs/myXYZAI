@@ -1,12 +1,14 @@
 ---
 title: B
 weight: 2
-type: cell
+type: code
+layout: code
+bg_color: "#3a3f4b"
 ---
 
-{{< cell >}}
+## code R2C2
 
-## R2C2
-content
-
-{{< /cell >}}
+{{< code-cell >}}
+# Enter your Python code here
+print("Hello, World!")
+{{< /code-cell >}}

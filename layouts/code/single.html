@@ -1,0 +1,114 @@
+{{ define "main" }}
+<style>
+  .code-cell-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+
+    background: {
+        {
+        .Params.bg_color | default "#3a3f4b"
+      }
+    }
+
+    ;
+  }
+
+  .code-cell-wrapper h3 {
+    flex-shrink: 0;
+    margin: 0.5rem 1rem;
+  }
+
+  .code-cell-content {
+    flex: 1 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 1rem;
+  }
+
+  /* Code block with line numbers */
+  .code-cell-content pre {
+    position: relative;
+    background: #2d3748;
+    border-radius: 4px;
+    padding: 1rem;
+    overflow-x: auto;
+  }
+
+  .code-cell-content pre code {
+    display: block;
+    counter-reset: line;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #e2e8f0;
+  }
+
+  .code-cell-content pre code .line {
+    display: block;
+    position: relative;
+    padding-left: 3.5rem;
+  }
+
+  .code-cell-content pre code .line::before {
+    counter-increment: line;
+    content: counter(line);
+    position: absolute;
+    left: 0;
+    width: 2.5rem;
+    text-align: right;
+    color: #718096;
+    user-select: none;
+    padding-right: 1rem;
+    border-right: 1px solid #4a5568;
+  }
+</style>
+<div class='hx:mx-auto hx:flex hextra-max-page-width'>
+  {{ partial "sidebar.html" (dict "context" .) }}
+  {{ partial "toc.html" . }}
+  <article
+    class="hx:w-full hx:break-words hx:flex hx:min-h-[calc(100vh-var(--navbar-height))] hx:min-w-0 hx:justify-center hx:pb-8 hx:pr-[calc(env(safe-area-inset-right)-1.5rem)]">
+    <main class="hx:w-full hx:min-w-0 hx:max-w-6xl hx:px-6 hx:pt-4 hx:md:px-12">
+      {{ partial "breadcrumb.html" (dict "page" . "enable" true) }}
+      {{- $bgColor := .Params.bg_color | default "#3a3f4b" -}}
+      <div style="display: flex; flex-direction: column; height: calc(100vh - 12rem);">
+        <div class="code-cell-wrapper hx:border hx:border-gray-200 hx:dark:border-neutral-700 hx:rounded-sm"
+          style="flex: 1; min-height: 0; overflow: hidden; background-color: {{ $bgColor }};">
+          <div class="code-cell-content">
+            {{ .Content }}
+          </div>
+        </div>
+      </div>
+    </main>
+  </article>
+</div>
+<script>
+  // Add line numbers to code blocks
+  document.addEventListener('DOMContentLoaded', function () {
+    const codeBlocks = document.querySelectorAll('.code-cell-content pre code');
+    codeBlocks.forEach(function (codeBlock) {
+      // Skip if already processed or if it's an output block
+      if (codeBlock.classList.contains('line-numbered') ||
+        codeBlock.closest('pre').previousElementSibling?.textContent.includes('Output')) {
+        return;
+      }
+
+      // Get the code text and split into lines
+      const lines = codeBlock.textContent.split('\n');
+
+      // Clear the code block
+      codeBlock.innerHTML = '';
+
+      // Add each line wrapped in a span
+      lines.forEach(function (line, index) {
+        const lineSpan = document.createElement('span');
+        lineSpan.className = 'line';
+        lineSpan.textContent = line || '\n';
+        codeBlock.appendChild(lineSpan);
+      });
+
+      codeBlock.classList.add('line-numbered');
+    });
+  });
+</script>
+{{ end }}

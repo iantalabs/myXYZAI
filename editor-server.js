@@ -389,6 +389,138 @@ bg_color: "#2d3748"
   }
 });
 
+// Insert code cell endpoint
+app.post('/api/insert-code-cell', (req, res) => {
+  const { cellPath, cellWeight } = req.body;
+  
+  if (!cellPath) {
+    return res.status(400).json({ error: 'Missing cellPath' });
+  }
+  
+  // Security: only allow creating cells in content directory
+  if (!cellPath.startsWith('content/')) {
+    return res.status(403).json({ error: 'Invalid cell path' });
+  }
+  
+  try {
+    // Extract row directory from cell path
+    const rowDir = path.dirname(cellPath);
+    const rowFullPath = path.join(__dirname, rowDir);
+    
+    // Read all existing cells in the row with their weights
+    const cellDirs = fs.readdirSync(rowFullPath)
+      .filter(name => name.startsWith('cell') && fs.statSync(path.join(rowFullPath, name)).isDirectory());
+    
+    const cellsWithWeights = cellDirs.map(name => {
+      const cellIndexPath = path.join(rowFullPath, name, '_index.md');
+      if (fs.existsSync(cellIndexPath)) {
+        const content = fs.readFileSync(cellIndexPath, 'utf8');
+        const weightMatch = content.match(/weight:\s*(\d+)/);
+        const weight = weightMatch ? parseInt(weightMatch[1]) : 999;
+        return { name, weight };
+      }
+      return null;
+    }).filter(c => c !== null);
+    
+    // Determine the weight for the new cell (insert after current cell)
+    const currentWeight = cellWeight ? parseInt(cellWeight) : 0;
+    const newWeight = currentWeight + 1;
+    
+    // Calculate the position (column) of the new cell based on its weight
+    // Sort cells by weight to determine position
+    const sortedCells = cellsWithWeights.sort((a, b) => a.weight - b.weight);
+    const newCellPosition = sortedCells.filter(c => c.weight < newWeight).length + 1;
+    const cellTitle = numberToLetters(newCellPosition);
+    
+    // Extract row number from path (e.g., content/orgs/org1/prod1/sow1/xyv1/tab1/row1 -> 1)
+    const rowMatch = rowDir.match(/row(\d+)/);
+    const rowNumber = rowMatch ? rowMatch[1] : '1';
+    
+    // Get cells that need to be shifted (weight >= newWeight), sorted in REVERSE order
+    const cellsToShift = cellsWithWeights
+      .filter(cell => cell.weight >= newWeight)
+      .sort((a, b) => b.weight - a.weight); // Sort descending (highest weight first)
+    
+    // Shift cells in REVERSE order to avoid folder name conflicts
+    cellsToShift.forEach(cell => {
+      const oldPosition = sortedCells.filter(c => c.weight < cell.weight).length + 1;
+      const newPosition = oldPosition + 1;
+      const updatedWeight = cell.weight + 1;
+      
+      // Determine old and new folder names
+      const oldCellNum = cell.name.match(/cell(\d+)/)[1];
+      const newCellNum = newPosition;
+      const oldCellPath = path.join(rowFullPath, cell.name);
+      const newCellName = `cell${newCellNum}`;
+      const newCellPath = path.join(rowFullPath, newCellName);
+      
+      // Read and update content before renaming
+      const cellIndexPath = path.join(oldCellPath, '_index.md');
+      let content = fs.readFileSync(cellIndexPath, 'utf8');
+      
+      // Update weight
+      content = content.replace(/weight:\s*\d+/, `weight: ${updatedWeight}`);
+      
+      // Update title
+      const newTitle = numberToLetters(newPosition);
+      content = content.replace(/title:\s*.+/, `title: ${newTitle}`);
+      
+      // Update R<row>C<col> heading in content if it exists (for both regular and code cells)
+      content = content.replace(/##\s*(code\s+)?R(\d+)C(\d+)/, (match, codePrefix, r, c) => {
+        const prefix = codePrefix || '';
+        return `## ${prefix}R${r}C${newPosition}`;
+      });
+      
+      // Write updated content
+      fs.writeFileSync(cellIndexPath, content, 'utf8');
+      
+      // Rename folder if needed
+      if (oldCellPath !== newCellPath) {
+        fs.renameSync(oldCellPath, newCellPath);
+      }
+    });
+    
+    // Create the new cell directory at the correct position
+    const newCellDir = `cell${newCellPosition}`;
+    const newCellPath = path.join(rowFullPath, newCellDir);
+    
+    if (!fs.existsSync(newCellPath)) {
+      fs.mkdirSync(newCellPath, { recursive: true });
+    }
+    
+    // Create the _index.md file with code layout and editor container
+    const indexContent = `---
+title: ${cellTitle}
+weight: ${newWeight}
+type: code
+layout: code
+bg_color: "#3a3f4b"
+---
+
+## code R${rowNumber}C${newCellPosition}
+
+{{< code-cell >}}
+# Enter your Python code here
+print("Hello, World!")
+{{< /code-cell >}}
+`;
+    
+    fs.writeFileSync(path.join(newCellPath, '_index.md'), indexContent, 'utf8');
+    
+    logAction('add', path.join(rowDir, newCellDir, '_index.md'));
+    
+    res.json({ 
+      success: true, 
+      message: 'Code cell inserted successfully',
+      cellDir: newCellDir,
+      cellPath: path.join(rowDir, newCellDir)
+    });
+  } catch (error) {
+    console.error('Error inserting code cell:', error);
+    res.status(500).json({ error: 'Failed to insert code cell: ' + error.message });
+  }
+});
+
 // Delete cell endpoint
 app.post('/api/delete-cell', (req, res) => {
   const { cellPath, cellWeight } = req.body;

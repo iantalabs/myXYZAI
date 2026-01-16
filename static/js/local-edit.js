@@ -111,6 +111,20 @@
 
   // Extract file path from URL or cell element
   function getFilePath(cellElement) {
+    // First, check if the cell element has a data-cell-path attribute
+    if (cellElement && cellElement.hasAttribute('data-cell-path')) {
+      let cellPath = cellElement.getAttribute('data-cell-path');
+      // Ensure it ends with _index.md
+      if (!cellPath.endsWith('_index.md')) {
+        if (cellPath.endsWith('/')) {
+          cellPath += '_index.md';
+        } else {
+          cellPath += '/_index.md';
+        }
+      }
+      return cellPath;
+    }
+    
     // If we have a cell element, try to find the link in the parent container
     if (cellElement) {
       // First check if there's a link inside the cell element itself
@@ -546,6 +560,90 @@
           // Show error notification
           const notification = document.createElement('div');
           notification.innerHTML = '❌ Failed to delete cell!<br><small>' + error.message + '</small>';
+          notification.style.cssText = 'position:fixed;top:20px;right:20px;padding:15px;background:#ef4444;color:white;border-radius:8px;z-index:1000;max-width:300px;box-shadow:0 4px 6px rgba(0,0,0,0.1);';
+          document.body.appendChild(notification);
+          setTimeout(() => notification.remove(), 5000);
+          
+          // Re-enable button
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+        }
+      });
+    });
+    
+    // Add handlers for insert code cell buttons
+    const insertCodeCellBtns = document.querySelectorAll('.insert-code-cell-btn');
+    insertCodeCellBtns.forEach(function(btn) {
+      btn.addEventListener('click', async function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const cellPath = btn.getAttribute('data-cell-path');
+        const cellWeight = btn.getAttribute('data-cell-weight');
+        
+        // Disable button and show loading state
+        btn.disabled = true;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '⏳';
+        
+        try {
+          const response = await fetch(`${API_URL}/api/insert-code-cell`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              cellPath: cellPath,
+              cellWeight: cellWeight
+            })
+          });
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            // Save scroll positions for ALL rows before reload
+            const allCellContainers = document.querySelectorAll('.hx\\:flex.hx\\:gap-0.hx\\:overflow-x-auto');
+            allCellContainers.forEach(function(container) {
+              const cellWithPath = container.querySelector('[data-cell-path]');
+              if (cellWithPath) {
+                const cp = cellWithPath.getAttribute('data-cell-path');
+                const match = cp.match(/tab(\d+)\/row(\d+)/);
+                if (match) {
+                  const rId = 'tab' + match[1] + '-row' + match[2];
+                  localStorage.setItem('rowScrollPosition_' + rId, container.scrollLeft);
+                }
+              }
+            });
+            
+            // For the row where the cell was added, scroll to the end to show the new cell
+            const cellContainer = btn.closest('.hx\\:flex.hx\\:gap-0.hx\\:overflow-x-auto');
+            if (cellContainer) {
+              const tabRowMatch = cellPath.match(/tab(\d+)\/row(\d+)/);
+              if (tabRowMatch) {
+                const rowId = 'tab' + tabRowMatch[1] + '-row' + tabRowMatch[2];
+                localStorage.setItem('rowScrollPosition_' + rowId, cellContainer.scrollWidth);
+              }
+            }
+            
+            // Show success notification
+            const notification = document.createElement('div');
+            notification.textContent = '✅ Code cell created! Refreshing...';
+            notification.style.cssText = 'position:fixed;top:20px;right:20px;padding:15px;background:#10b981;color:white;border-radius:8px;z-index:1000;box-shadow:0 4px 6px rgba(0,0,0,0.1);';
+            document.body.appendChild(notification);
+            
+            // Refresh the page after a short delay
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          } else {
+            throw new Error(result.error || 'Failed to insert code cell');
+          }
+        } catch (error) {
+          console.error('Error inserting code cell:', error);
+          
+          // Show error notification
+          const notification = document.createElement('div');
+          notification.innerHTML = '❌ Failed to insert code cell!<br><small>' + error.message + '</small>';
           notification.style.cssText = 'position:fixed;top:20px;right:20px;padding:15px;background:#ef4444;color:white;border-radius:8px;z-index:1000;max-width:300px;box-shadow:0 4px 6px rgba(0,0,0,0.1);';
           document.body.appendChild(notification);
           setTimeout(() => notification.remove(), 5000);
